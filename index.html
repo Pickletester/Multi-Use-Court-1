@@ -15,17 +15,38 @@
     #scoreboardPanel {
       display: none;
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -55%);
+      top: 0; left: 0; right: 0; bottom: 0;
       z-index: 5000;
-      background: #111;
-      border: 2px solid #555;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 0 40px rgba(0,0,0,0.85);
+      background: #0a0a0a;
+      flex-direction: column;
     }
-    #scoreboardPanel.visible { display: block; }
+    #scoreboardPanel.visible { display: flex; }
+
+    .sb-top-bar {
+      display: flex; justify-content: space-between;
+      align-items: center;
+      background: #1a1a1a;
+      border-bottom: 2px solid #333;
+      padding: 12px 24px;
+      flex-shrink: 0;
+    }
+    .sb-top-bar span { color: #aaa; font-size: 14px; }
+    #closeBtn {
+      background: #c0392b; color: white;
+      border: none; border-radius: 6px;
+      cursor: pointer; padding: 8px 20px;
+      font-size: 14px; font-weight: bold;
+      letter-spacing: 0.05em;
+    }
+    #closeBtn:hover { background: #e74c3c; }
+
+    .sb-content-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+    }
 
     #scoreboardPanel .sb-container {
       position: relative;
@@ -58,17 +79,6 @@
       padding: 5px 10px; margin: 2px;
     }
     #sb-clock { font-size: 18px; margin-top: 50px; }
-    .sb-top-bar {
-      display: flex; justify-content: space-between;
-      align-items: center; margin-bottom: 10px;
-    }
-    .sb-top-bar span { color: #aaa; font-size: 13px; }
-    #closeBtn {
-      background: #333; color: white;
-      border: 1px solid #888; border-radius: 6px;
-      cursor: pointer; padding: 5px 14px; font-size: 13px;
-    }
-    #closeBtn:hover { background: #555; }
 
     /* ── SCOREBUG BAR ── */
     .bar {
@@ -229,8 +239,9 @@
   <div id="scoreboardPanel">
     <div class="sb-top-bar">
       <span>🔒 Admin Scoreboard — <code>?admin=YOUR_CODE</code> to open</span>
-      <button id="closeBtn" onclick="hideScoreboard()">✕ Close</button>
+      <button id="closeBtn" onclick="hideScoreboard()">✕ Close Scoreboard</button>
     </div>
+    <div class="sb-content-wrap">
     <div class="sb-container">
       <div class="player-area">
         <div class="player-box"><input id="p4" class="sb-input input-p" value="PLAYER 4"></div>
@@ -263,6 +274,7 @@
         <button onclick="swapSides()" style="margin-top:20px; background:#444; color:white; border:1px solid white; cursor:pointer;">SWAP SIDES</button>
       </div>
     </div>
+    </div><!-- end sb-content-wrap -->
   </div>
 
   <!-- ── SCOREBUG BAR ── -->
@@ -345,7 +357,7 @@
 <script>
   // ════════════════════════════════════════════
   //  SET YOUR SECRET CODE HERE ↓
-  var ADMIN_CODE = "1969";
+  var ADMIN_CODE = "1234";
   // ════════════════════════════════════════════
 
   function checkAdminAccess() {
