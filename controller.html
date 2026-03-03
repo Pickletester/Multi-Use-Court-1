@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scoreboard Controller</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: black;
+      font-family: sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    h2 { font-size: 14px; color: #888; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+
+    .container { position: relative; width: 832px; height: 384px; display: flex; border: 1px solid #444; flex-shrink: 0; }
+    .player-area { width: 245px; display: flex; flex-direction: column; }
+    .player-box { height: 192px; border: 1px solid white; background: #1a365d; display: flex; align-items: center; justify-content: center; }
+    .player-box input { background: none; border: none; color: white; font-weight: bold; font-size: 24px; text-align: center; width: 100%; outline: none; }
+    .score-area { width: 110px; border: 1px solid white; background: #808080; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .score-area input { background: none; border: none; color: white; font-weight: bold; font-size: 68px; text-align: center; width: 100%; outline: none; }
+    .controls button { background: #333; color: white; border: 1px solid white; cursor: pointer; padding: 5px 10px; margin: 2px; font-size: 16px; }
+    .controls button:active { background: #555; }
+    .info-panel { flex-grow: 1; padding: 20px; text-align: right; font-size: 13px; color: #ccc; }
+    .info-panel input { background: none; border: none; color: white; font-weight: bold; font-size: 16px; text-align: right; width: 100%; outline: none; border-bottom: 1px solid #444; margin-bottom: 8px; }
+    #clock { font-size: 18px; margin-top: 30px; color: white; }
+
+    .actions { width: 832px; display: flex; gap: 10px; margin-top: 14px; }
+    .actions button { flex: 1; padding: 14px; font-size: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; letter-spacing: 0.05em; text-transform: uppercase; }
+    .btn-swap  { background: #1a365d; border: 1px solid white; color: white; }
+    .btn-swap:active { background: #2a4a7f; }
+    .btn-reset { background: #3a0000; border: 1px solid #ff4444; color: #ff6666; }
+    .btn-reset:active { background: #550000; }
+
+    .status-bar { width: 832px; margin-top: 10px; padding: 8px 14px; background: #111; border: 1px solid #333; border-radius: 6px; font-size: 12px; color: #666; text-align: center; }
+    .status-bar.connected { color: #22c55e; border-color: #22c55e; }
+    .status-bar.error     { color: #ff4444; border-color: #ff4444; }
+  </style>
+</head>
+<body>
+  <h2>Court 1 Scoreboard Controller</h2>
+  <div class="container">
+    <div class="player-area">
+      <div class="player-box"><input id="p4" value="PLAYER 4"></div>
+      <div class="player-box"><input id="p3" value="PLAYER 3"></div>
+    </div>
+    <div class="score-area">
+      <input id="score1" value="0" type="number" min="0">
+      <div class="controls">
+        <button onclick="window.adjust('score1', 1)">▲</button>
+        <button onclick="window.adjust('score1', -1)">▼</button>
+      </div>
+    </div>
+    <div class="score-area">
+      <input id="score2" value="0" type="number" min="0">
+      <div class="controls">
+        <button onclick="window.adjust('score2', 1)">▲</button>
+        <button onclick="window.adjust('score2', -1)">▼</button>
+      </div>
+    </div>
+    <div class="player-area">
+      <div class="player-box"><input id="p1" value="PLAYER 1"></div>
+      <div class="player-box"><input id="p2" value="PLAYER 2"></div>
+    </div>
+    <div class="info-panel">
+      EVENT NAME<br>
+      <input id="event" value="TOURNAMENT"><br>
+      GAMES<br>
+      <input id="games" value="0-0, 0-0">
+      <div id="clock">--:--:-- --</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-swap"  onclick="window.swapSides()">Swap Sides</button>
+    <button class="btn-reset" onclick="window.resetScores()">Reset Scores to 0</button>
+  </div>
+  <div class="status-bar" id="statusBar">Connecting to Firebase...</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script>
+  var scores = [0, 0];
+  var statusEl = document.getElementById('statusBar');
+
+  firebase.initializeApp({
+    databaseURL: "https://pickleballscoreboard-a963e-default-rtdb.firebaseio.com",
+    projectId: "pickleballscoreboard-a963e",
+  });
+
+  var db = firebase.database();
+  var scoreRef = db.ref('scoreboard');
+  var viewRef  = db.ref('view');
+
+  scoreRef.on('value', function(snap) {
+    var data = snap.val(); if (!data) return;
+    ['p1','p2','p3','p4','event','games'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && data[id] !== undefined) el.value = String(data[id]);
+    });
+    if (data.score1 !== undefined) { scores[0] = parseInt(data.score1)||0; document.getElementById('score1').value = scores[0]; }
+    if (data.score2 !== undefined) { scores[1] = parseInt(data.score2)||0; document.getElementById('score2').value = scores[1]; }
+    statusEl.textContent = 'Live - ' + new Date().toLocaleTimeString();
+    statusEl.className = 'status-bar connected';
+  }, function(err) {
+    statusEl.textContent = 'Error: ' + err.message;
+    statusEl.className = 'status-bar error';
+  });
+
+  function syncAll() {
+    scoreRef.set({
+      p1: document.getElementById('p1').value,
+      p2: document.getElementById('p2').value,
+      p3: document.getElementById('p3').value,
+      p4: document.getElementById('p4').value,
+      score1: String(scores[0]),
+      score2: String(scores[1]),
+      event:  document.getElementById('event').value,
+      games:  document.getElementById('games').value,
+    }).catch(function(err) {
+      statusEl.textContent = 'Save failed: ' + err.message;
+      statusEl.className = 'status-bar error';
+    });
+  }
+
+  ['p1','p2','p3','p4','event','games'].forEach(function(id) {
+    document.getElementById(id).addEventListener('input', syncAll);
+  });
+
+  window.adjust = function(id, amt) {
+    var idx = id === 'score1' ? 0 : 1;
+    scores[idx] = Math.max(0, scores[idx] + amt);
+    document.getElementById(id).value = scores[idx];
+    syncAll();
+  };
+
+  window.swapSides = function() {
+    var p1=document.getElementById('p1').value, p2=document.getElementById('p2').value;
+    var p3=document.getElementById('p3').value, p4=document.getElementById('p4').value;
+    document.getElementById('p1').value=p4; document.getElementById('p4').value=p1;
+    document.getElementById('p2').value=p3; document.getElementById('p3').value=p2;
+    var tmp=scores[0]; scores[0]=scores[1]; scores[1]=tmp;
+    document.getElementById('score1').value=scores[0];
+    document.getElementById('score2').value=scores[1];
+    syncAll();
+  };
+
+  window.resetScores = function() {
+    scores[0]=0; scores[1]=0;
+    document.getElementById('score1').value=0;
+    document.getElementById('score2').value=0;
+    syncAll();
+  };
+
+  setInterval(function() {
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+  }, 1000);
+</script>
+</body>
+</html>
