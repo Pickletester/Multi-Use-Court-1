@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Court 1 Controller</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      width: 100%; min-height: 100vh;
+      background: #0d0d0d;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+    header {
+      background: #1a365d;
+      padding: 14px 16px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-bottom: 2px solid #2a4a7f;
+    }
+    header small {
+      display: block;
+      font-size: 11px;
+      color: #aac4e8;
+      font-weight: 400;
+      margin-top: 2px;
+      letter-spacing: 0.05em;
+    }
+    .page { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+    .view-switcher {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 2px solid #333;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .view-btn {
+      padding: 16px 8px;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      background: #1a1a1a;
+      color: #555;
+      transition: all 0.15s;
+    }
+    .view-btn.active { background: #1a365d; color: #fff; }
+    .view-btn:first-child { border-right: 2px solid #333; }
+    .view-btn:active { opacity: 0.75; }
+    .scores-row {
+      display: grid;
+      grid-template-columns: 1fr 40px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+    .score-card {
+      background: #1a1a2e;
+      border: 2px solid #2a2a5a;
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .score-card-label {
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: #555; margin-bottom: 4px;
+    }
+    .score-display {
+      font-size: 72px; font-weight: 900; line-height: 1;
+      color: #5b9bd5;
+    }
+    .score-card.right .score-display { color: #e05c5c; }
+    .score-btns { display: flex; gap: 6px; margin-top: 8px; }
+    .score-btns button {
+      flex: 1; padding: 14px 0;
+      font-size: 22px; font-weight: 900;
+      border: none; border-radius: 8px; cursor: pointer;
+    }
+    .score-btns button:active { opacity: 0.7; transform: scale(0.95); }
+    .btn-up   { background: #22c55e; color: #000; }
+    .btn-down { background: #2a2a2a; color: #fff; border: 1px solid #444; }
+    .vs { text-align: center; font-size: 14px; font-weight: 900; color: #333; }
+    .section-title {
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: #444; margin-bottom: 6px;
+    }
+    .players-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .input-wrap { display: flex; flex-direction: column; gap: 4px; }
+    .input-label { font-size: 10px; color: #444; text-transform: uppercase; letter-spacing: 0.08em; }
+    .player-input {
+      background: #1a1a2e; border: 1px solid #2a2a5a;
+      border-radius: 8px; color: white;
+      padding: 12px; font-size: 15px; font-weight: 700;
+      width: 100%; outline: none; text-transform: uppercase;
+    }
+    .player-input.right { background: #2e1a1a; border-color: #5a2a2a; }
+    .player-input:focus { border-color: #5b9bd5; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .info-input {
+      background: #1a1a1a; border: 1px solid #2a2a2a;
+      border-radius: 8px; color: white;
+      padding: 12px; font-size: 14px;
+      width: 100%; outline: none;
+    }
+    .info-input:focus { border-color: #5b9bd5; }
+    .btn-swap {
+      width: 100%; padding: 16px;
+      background: #1a365d; border: 1px solid #2a4a7f;
+      border-radius: 10px; color: white;
+      font-size: 16px; font-weight: 900;
+      cursor: pointer; text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .btn-swap:active { background: #2a4a7f; }
+    .btn-reset {
+      width: 100%; padding: 14px;
+      background: #1a0000; border: 1px solid #5a0000;
+      border-radius: 10px; color: #ff6b6b;
+      font-size: 14px; font-weight: 900;
+      cursor: pointer; text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .btn-reset:active { background: #2a0000; }
+    .status-bar {
+      padding: 8px 12px; background: #111;
+      border: 1px solid #222; border-radius: 6px;
+      font-size: 11px; color: #444; text-align: center;
+    }
+    .status-bar.connected { color: #22c55e; border-color: #22c55e; }
+    .status-bar.error     { color: #ff4444; border-color: #ff4444; }
+    .spacer { height: 30px; }
+  </style>
+</head>
+<body>
+
+<header>
+  🏓 Court 1 Controller
+  <small>Changes update the LED board instantly</small>
+</header>
+
+<div class="page">
+
+  <div class="view-switcher">
+    <button class="view-btn" id="btn-scoreboard">📊 Scoreboard</button>
+    <button class="view-btn" id="btn-scorebug">🏓 Scorebug</button>
+  </div>
+
+  <div>
+    <div class="section-title">Score</div>
+    <div class="scores-row">
+      <div class="score-card">
+        <div class="score-card-label">Left</div>
+        <div class="score-display" id="disp1">0</div>
+        <div class="score-btns">
+          <button class="btn-up"   onclick="adjust('score1', 1)">+</button>
+          <button class="btn-down" onclick="adjust('score1', -1)">−</button>
+        </div>
+      </div>
+      <div class="vs">VS</div>
+      <div class="score-card right">
+        <div class="score-card-label">Right</div>
+        <div class="score-display" id="disp2">0</div>
+        <div class="score-btns">
+          <button class="btn-up"   onclick="adjust('score2', 1)">+</button>
+          <button class="btn-down" onclick="adjust('score2', -1)">−</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-title">Left Team</div>
+    <div class="players-grid">
+      <div class="input-wrap">
+        <div class="input-label">Player 4 (top)</div>
+        <input id="p4" class="player-input" value="PLAYER 4" maxlength="20" oninput="sync()">
+      </div>
+      <div class="input-wrap">
+        <div class="input-label">Player 3 (bottom)</div>
+        <input id="p3" class="player-input" value="PLAYER 3" maxlength="20" oninput="sync()">
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-title">Right Team</div>
+    <div class="players-grid">
+      <div class="input-wrap">
+        <div class="input-label">Player 1 (top)</div>
+        <input id="p1" class="player-input right" value="PLAYER 1" maxlength="20" oninput="sync()">
+      </div>
+      <div class="input-wrap">
+        <div class="input-label">Player 2 (bottom)</div>
+        <input id="p2" class="player-input right" value="PLAYER 2" maxlength="20" oninput="sync()">
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-title">Event Info</div>
+    <div class="info-grid">
+      <input id="event" class="info-input" value="TOURNAMENT" placeholder="Event name" oninput="sync()">
+      <input id="games" class="info-input" value="0-0, 0-0" placeholder="Games" oninput="sync()">
+    </div>
+  </div>
+
+  <button class="btn-swap"  onclick="swapSides()">⇄ Swap Sides</button>
+  <button class="btn-reset" onclick="resetScores()">✕ Reset Scores to 0</button>
+
+  <div class="status-bar" id="statusBar">Connecting…</div>
+  <div class="spacer"></div>
+</div>
+
+<!-- Firebase compat SDK — plain globals, no ES modules, works everywhere -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+<script>
+  // Scores stored as plain JS variables — no hidden inputs needed
+  var scores = { score1: 0, score2: 0 };
+
+  firebase.initializeApp({
+    databaseURL: "https://pickleballscoreboard-a963e-default-rtdb.firebaseio.com",
+    projectId: "pickleballscoreboard-a963e",
+  });
+
+  var db       = firebase.database();
+  var scoreRef = db.ref('scoreboard');
+  var viewRef  = db.ref('view');
+  var statusEl = document.getElementById('statusBar');
+
+  var textIds = ['p1','p2','p3','p4','event','games'];
+
+  // Listen for changes from Firebase and update UI
+  scoreRef.on('value', function(snap) {
+    var data = snap.val();
+    if (!data) return;
+
+    textIds.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && data[id] !== undefined) el.value = String(data[id]);
+    });
+
+    if (data.score1 !== undefined) {
+      scores.score1 = parseInt(data.score1) || 0;
+      document.getElementById('disp1').textContent = scores.score1;
+    }
+    if (data.score2 !== undefined) {
+      scores.score2 = parseInt(data.score2) || 0;
+      document.getElementById('disp2').textContent = scores.score2;
+    }
+
+    statusEl.textContent = '● Live — ' + new Date().toLocaleTimeString();
+    statusEl.className = 'status-bar connected';
+  }, function(err) {
+    statusEl.textContent = '✕ ' + err.message;
+    statusEl.className = 'status-bar error';
+  });
+
+  // View switcher sync
+  viewRef.on('value', function(snap) {
+    var v = snap.val() || 'scorebug';
+    document.getElementById('btn-scoreboard').classList.toggle('active', v === 'scoreboard');
+    document.getElementById('btn-scorebug').classList.toggle('active',   v === 'scorebug');
+  });
+
+  function getAll() {
+    var data = { score1: String(scores.score1), score2: String(scores.score2) };
+    textIds.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    return data;
+  }
+
+  function pushToFirebase() {
+    scoreRef.set(getAll())
+      .then(function() {
+        statusEl.textContent = '● Saved — ' + new Date().toLocaleTimeString();
+        statusEl.className = 'status-bar connected';
+      })
+      .catch(function(err) {
+        statusEl.textContent = '✕ Failed: ' + err.message;
+        statusEl.className = 'status-bar error';
+      });
+  }
+
+  function sync() {
+    pushToFirebase();
+  }
+
+  function adjust(id, amt) {
+    scores[id] = Math.max(0, scores[id] + amt);
+    document.getElementById(id === 'score1' ? 'disp1' : 'disp2').textContent = scores[id];
+    pushToFirebase();
+  }
+
+  function swapSides() {
+    var g = function(id) { return document.getElementById(id).value; };
+    var s = function(id, v) { document.getElementById(id).value = v; };
+    var p1=g('p1'), p2=g('p2'), p3=g('p3'), p4=g('p4');
+    var s1=scores.score1, s2=scores.score2;
+    s('p1',p4); s('p4',p1); s('p2',p3); s('p3',p2);
+    scores.score1 = s2; scores.score2 = s1;
+    document.getElementById('disp1').textContent = scores.score1;
+    document.getElementById('disp2').textContent = scores.score2;
+    pushToFirebase();
+  }
+
+  function resetScores() {
+    scores.score1 = 0;
+    scores.score2 = 0;
+    document.getElementById('disp1').textContent = 0;
+    document.getElementById('disp2').textContent = 0;
+    pushToFirebase();
+  }
+
+  document.getElementById('btn-scoreboard').onclick = function() { viewRef.set('scoreboard'); };
+  document.getElementById('btn-scorebug').onclick   = function() { viewRef.set('scorebug'); };
+</script>
+</body>
+</html>
