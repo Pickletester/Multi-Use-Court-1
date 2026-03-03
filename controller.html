@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Court 1 Controller</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <style>
@@ -60,7 +60,7 @@
     .view-btn:active { opacity: 0.75; }
 
     /* SCORES */
-    .scores-row {
+    .score-row {
       display: grid;
       grid-template-columns: 1fr 40px 1fr;
       gap: 8px;
@@ -173,13 +173,13 @@
   <!-- SCORES -->
   <div>
     <div class="section-title">Score</div>
-    <div class="scores-row">
+    <div class="score-row">
       <div class="score-card">
         <div class="score-card-label">Left</div>
         <div class="score-display" id="disp1">0</div>
         <div class="score-btns">
-          <button class="btn-up"   onclick="window.adjust('score1', 1)">+</button>
-          <button class="btn-down" onclick="window.adjust('score1', -1)">−</button>
+          <button class="btn-up btn">+</button>
+          <button class="btn-down btn">−</button>
         </div>
       </div>
       <div class="vs">VS</div>
@@ -187,8 +187,8 @@
         <div class="score-card-label">Right</div>
         <div class="score-display" id="disp2">0</div>
         <div class="score-btns">
-          <button class="btn-up"   onclick="window.adjust('score2', 1)">+</button>
-          <button class="btn-down" onclick="window.adjust('score2', -1)">−</button>
+          <button class="btn-up btn">+</button>
+          <button class="btn-down btn">−</button>
         </div>
       </div>
     </div>
@@ -200,11 +200,11 @@
     <div class="players-grid">
       <div class="input-wrap">
         <div class="input-label">Player 4 (top)</div>
-        <input id="p4" class="player-input" value="PLAYER 4" maxlength="20">
+        <input id="p4" class="player-input" value="PLAYER 4" maxlength="20" />
       </div>
       <div class="input-wrap">
         <div class="input-label">Player 3 (bottom)</div>
-        <input id="p3" class="player-input" value="PLAYER 3" maxlength="20">
+        <input id="p3" class="player-input" value="PLAYER 3" maxlength="20" />
       </div>
     </div>
   </div>
@@ -215,11 +215,11 @@
     <div class="players-grid">
       <div class="input-wrap">
         <div class="input-label">Player 1 (top)</div>
-        <input id="p1" class="player-input right" value="PLAYER 1" maxlength="20">
+        <input id="p1" class="player-input right" value="PLAYER 1" maxlength="20" />
       </div>
       <div class="input-wrap">
         <div class="input-label">Player 2 (bottom)</div>
-        <input id="p2" class="player-input right" value="PLAYER 2" maxlength="20">
+        <input id="p2" class="player-input right" value="PLAYER 2" maxlength="20" />
       </div>
     </div>
   </div>
@@ -228,13 +228,13 @@
   <div>
     <div class="section-title">Event Info</div>
     <div class="info-grid">
-      <input id="event" class="info-input" value="TOURNAMENT" placeholder="Event name">
-      <input id="games" class="info-input" value="0-0, 0-0" placeholder="Games">
+      <input id="event" class="info-input" value="TOURNAMENT" placeholder="Event name" />
+      <input id="games" class="info-input" value="0-0, 0-0" placeholder="Games" />
     </div>
   </div>
 
   <!-- ACTIONS -->
-  <button class="btn-swap"  onclick="window.swapSides()">⇄ Swap Sides</button>
+  <button class="btn-swap" onclick="window.swapSides()">⇄ Swap Sides</button>
   <button class="btn-reset" onclick="window.resetScores()">✕ Reset Scores to 0</button>
 
   <div class="status-bar" id="statusBar">Connecting…</div>
@@ -290,11 +290,12 @@
   ids.forEach(id => { const el = document.getElementById(id); if (el) el.oninput = sync; });
 
   window.adjust = (id, amt) => {
+    console.log('Adjusting', id, 'by', amt);
     const el = document.getElementById(id);
     const newVal = Math.max(0, (parseInt(el.value) || 0) + amt);
     el.value = String(newVal);
     if (id === 'score1') document.getElementById('disp1').textContent = newVal;
-    if (id === 'score2') document.getElementById('disp2').textContent = newVal;
+    if (id === 'score2') document.getElementById('disp2') .textContent = newVal;
     const data = {};
     ids.forEach(i => { const e = document.getElementById(i); if (e) data[i] = e.value; });
     set(scoreRef, data)
@@ -317,6 +318,18 @@
   };
 
   window.switchView = (v) => set(viewRef, v);
+
+  // Add event listeners to buttons for mobile support
+  document.querySelectorAll('.score-btns button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const parentDiv = btn.closest('.score-btns');
+      const isUp = btn.classList.contains('btn-up');
+      const scoreDisplay = parentDiv.closest('.score-card').querySelector('.score-display');
+      const scoreId = scoreDisplay.id;
+      const amount = isUp ? 1 : -1;
+      window.adjust(scoreId, amount);
+    });
+  });
 </script>
 </body>
 </html>
