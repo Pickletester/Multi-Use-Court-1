@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Court 1 Controller</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #121212; font-family: -apple-system, system-ui, sans-serif; color: white; padding: 10px; }
+    
+    /* Tabs */
+    .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+    .tab-btn { flex: 1; padding: 12px; background: #333; border: none; color: #888; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    .tab-btn.active { background: #007bff; color: white; }
+
+    /* Layout */
+    .view-content { display: none; }
+    .view-content.active { display: block; }
+    
+    .score-row { display: flex; justify-content: space-between; align-items: center; background: #1a365d; margin-bottom: 10px; padding: 15px; border-radius: 8px; border: 1px solid #2a4a7d; }
+    .player-inputs { flex-grow: 1; margin-right: 15px; }
+    input { width: 100%; padding: 10px; margin: 4px 0; background: #0d1b2e; border: 1px solid #444; color: white; border-radius: 4px; font-size: 16px; }
+    
+    .controls { display: flex; align-items: center; gap: 10px; }
+    .btn { width: 50px; height: 50px; font-size: 24px; font-weight: bold; border: none; border-radius: 50%; cursor: pointer; color: white; }
+    .btn-minus { background: #dc3545; }
+    .btn-plus { background: #28a745; }
+    .score-display { font-size: 32px; font-weight: bold; min-width: 40px; text-align: center; }
+
+    .meta-area { background: #222; padding: 15px; border-radius: 8px; margin-top: 10px; }
+    .status-bar { font-size: 12px; margin-top: 10px; color: #888; }
+    
+    /* Mobile Scaling */
+    @media (max-width: 600px) {
+      .score-row { flex-direction: column; align-items: stretch; }
+      .controls { justify-content: center; margin-top: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('scoreboard')">SCOREBOARD</button>
+    <button class="tab-btn" onclick="switchTab('scorebug')">SCOREBUG</button>
+  </div>
+
+  <div id="scoreboard-view" class="view-content active">
+    <div class="score-row">
+      <div class="player-inputs">
+        <input type="text" id="p1" placeholder="Player 1" oninput="syncAll()">
+        <input type="text" id="p2" placeholder="Player 2" oninput="syncAll()">
+      </div>
+      <div class="controls">
+        <button class="btn btn-minus" onclick="adjust(0, -1)">-</button>
+        <div class="score-display" id="disp0">0</div>
+        <button class="btn btn-plus" onclick="adjust(0, 1)">+</button>
+      </div>
+    </div>
+
+    <div class="score-row">
+      <div class="player-inputs">
+        <input type="text" id="p3" placeholder="Player 3" oninput="syncAll()">
+        <input type="text" id="p4" placeholder="Player 4" oninput="syncAll()">
+      </div>
+      <div class="controls">
+        <button class="btn btn-minus" onclick="adjust(1, -1)">-</button>
+        <div class="score-display" id="disp1">0</div>
+        <button class="btn btn-plus" onclick="adjust(1, 1)">+</button>
+      </div>
+    </div>
+
+    <div class="meta-area">
+      <input type="text" id="event" placeholder="Event Name" oninput="syncAll()">
+      <input type="text" id="games" placeholder="Game Info (e.g. Game 1)" oninput="syncAll()">
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button class="tab-btn" style="background:#444; color:white;" onclick="swapSides()">Swap Sides</button>
+        <button class="tab-btn" style="background:#444; color:white;" onclick="resetScores()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="scorebug-view" class="view-content">
+    <p style="text-align:center; color:#888; margin-top:20px;">Scorebug settings and preview will appear here.</p>
+  </div>
+
+  <div id="status" class="status-bar">Syncing...</div>
+
+  <script>
+    // Initialize with your Firebase Config
+    const firebaseConfig = { /* YOUR CONFIG HERE */ };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database().ref('court1');
+
+    let sc = [0, 0]; // Local score state for reliable mobile updates
+
+    function switchTab(view) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+      
+      if(view === 'scoreboard') {
+        document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+        document.getElementById('scoreboard-view').classList.add('active');
+      } else {
+        document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+        document.getElementById('scorebug-view').classList.add('active');
+      }
+    }
+
+    function adjust(idx, amt) {
+      sc[idx] = Math.max(0, sc[idx] + amt);
+      document.getElementById('disp' + idx).textContent = sc[idx];
+      syncAll();
+    }
+
+    function syncAll() {
+      db.set({
+        p1: document.getElementById('p1').value,
+        p2: document.getElementById('p2').value,
+        p3: document.getElementById('p3').value,
+        p4: document.getElementById('p4').value,
+        score1: sc[0],
+        score2: sc[1],
+        event: document.getElementById('event').value,
+        games: document.getElementById('games').value,
+        timestamp: Date.now()
+      }).then(() => {
+        document.getElementById('status').textContent = 'Synced at ' + new Date().toLocaleTimeString();
+      });
+    }
+
+    function swapSides() {
+      let p1 = document.getElementById('p1').value, p2 = document.getElementById('p2').value;
+      let p3 = document.getElementById('p3').value, p4 = document.getElementById('p4').value;
+      document.getElementById('p1').value = p4; document.getElementById('p4').value = p1;
+      document.getElementById('p2').value = p3; document.getElementById('p3').value = p2;
+      let tmpS = sc[0]; sc[0] = sc[1]; sc[1] = tmpS;
+      document.getElementById('disp0').textContent = sc[0];
+      document.getElementById('disp1').textContent = sc[1];
+      syncAll();
+    }
+
+    function resetScores() {
+      if(!confirm('Reset scores?')) return;
+      sc = [0, 0];
+      document.getElementById('disp0').textContent = "0";
+      document.getElementById('disp1').textContent = "0";
+      syncAll();
+    }
+  </script>
+</body>
+</html>
