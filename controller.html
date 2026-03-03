@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Court 1 Controller</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <style>
+    /* EXACT STYLING FROM YOUR FILE */
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; min-height: 100vh; background: #0d0d0d; font-family: Arial, sans-serif; color: white; }
+
+    header {
+      background: #1a365d; padding: 14px 16px; text-align: center;
+      font-size: 16px; font-weight: 900; letter-spacing: 0.1em;
+      text-transform: uppercase; border-bottom: 2px solid #2a4a7f;
+    }
+    header small { display: block; font-size: 11px; color: #aac4e8; font-weight: 400; margin-top: 2px; }
+
+    .page { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+
+    .scores-row { display: grid; grid-template-columns: 1fr 40px 1fr; gap: 8px; align-items: center; }
+    .score-card { background: #1a1a2e; border: 2px solid #2a2a5a; border-radius: 12px; padding: 12px 8px; text-align: center; }
+    .score-display { font-size: 72px; font-weight: 900; line-height: 1; color: #5b9bd5; margin-bottom: 8px; }
+    .score-card.right .score-display { color: #e05c5c; }
+
+    .score-btns { display: flex; gap: 6px; }
+    .score-btns button {
+      flex: 1; padding: 14px 0; font-size: 22px; font-weight: 900;
+      border: none; border-radius: 8px; cursor: pointer;
+    }
+    .btn-up { background: #22c55e; color: #000; }
+    .btn-down { background: #2a2a2a; color: #fff; border: 1px solid #444; }
+
+    .players-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .input-box {
+      background: #1a1a1a; border: 1px solid #333; padding: 12px;
+      color: #fff; font-size: 14px; border-radius: 8px; width: 100%; outline: none;
+    }
+
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-action {
+      padding: 14px; background: #1a1a1a; color: #fff; border: 1px solid #333;
+      border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 12px;
+    }
+
+    .status-bar { margin-top: auto; padding: 20px; font-size: 11px; text-align: center; color: #555; }
+    .status-bar.connected { color: #22c55e; }
+  </style>
+</head>
+<body>
+
+  <header>
+    COURT 1 CONTROLLER
+    <small id="clock">--:--:--</small>
+  </header>
+
+  <div class="page">
+    <div class="scores-row">
+      <div class="score-card">
+        <div class="score-display" id="disp1">0</div>
+        <div class="score-btns">
+          <button class="btn-down" onclick="adjust('score1', -1)">−</button>
+          <button class="btn-up" onclick="adjust('score1', 1)">+</button>
+        </div>
+        <input type="hidden" id="score1" value="0">
+      </div>
+      <div style="text-align:center; font-weight:900; color:#333">VS</div>
+      <div class="score-card right">
+        <div class="score-display" id="disp2">0</div>
+        <div class="score-btns">
+          <button class="btn-down" onclick="adjust('score2', -1)">−</button>
+          <button class="btn-up" onclick="adjust('score2', 1)">+</button>
+        </div>
+        <input type="hidden" id="score2" value="0">
+      </div>
+    </div>
+
+    <div class="players-grid">
+      <input id="p4" class="input-box" placeholder="PLAYER 4">
+      <input id="p1" class="input-box" placeholder="PLAYER 1">
+      <input id="p3" class="input-box" placeholder="PLAYER 3">
+      <input id="p2" class="input-box" placeholder="PLAYER 2">
+    </div>
+
+    <input id="event" class="input-box" placeholder="EVENT NAME">
+    <input id="games" class="input-box" placeholder="GAMES (0-0, 0-0)">
+
+    <div class="actions">
+      <button class="btn-action" onclick="swapSides()">Swap Sides</button>
+      <button class="btn-action" onclick="resetScores()">Reset All</button>
+    </div>
+  </div>
+
+  <div class="status-bar" id="status">Connecting...</div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://pickleballscoreboard-a963e-default-rtdb.firebaseio.com",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const scoreRef = db.ref('scoreboard');
+    const statusEl = document.getElementById('status');
+    const ids = ['p1','p2','p3','p4','score1','score2','event','games'];
+
+    // Sync data to Firebase
+    function sync() {
+      const data = {};
+      ids.forEach(id => { data[id] = document.getElementById(id).value; });
+      scoreRef.set(data).then(() => {
+        statusEl.textContent = '● Connected — ' + new Date().toLocaleTimeString();
+        statusEl.className = 'status-bar connected';
+      }).catch(err => {
+        statusEl.textContent = '✕ Error: ' + err.message;
+      });
+    }
+
+    // Attach listeners for mobile keyboards
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('input', sync);
+      el.addEventListener('change', sync);
+      el.addEventListener('blur', sync);
+    });
+
+    // Score adjustments
+    window.adjust = (id, amt) => {
+      const el = document.getElementById(id);
+      const newVal = Math.max(0, (parseInt(el.value) || 0) + amt);
+      el.value = newVal;
+      document.getElementById(id === 'score1' ? 'disp1' : 'disp2').textContent = newVal;
+      sync();
+    };
+
+    // Swap Sides logic
+    window.swapSides = () => {
+      const p1 = document.getElementById('p1').value, p2 = document.getElementById('p2').value;
+      const p3 = document.getElementById('p3').value, p4 = document.getElementById('p4').value;
+      const s1 = document.getElementById('score1').value, s2 = document.getElementById('score2').value;
+      
+      document.getElementById('p1').value = p4; document.getElementById('p4').value = p1;
+      document.getElementById('p2').value = p3; document.getElementById('p3').value = p2;
+      document.getElementById('score1').value = s2; document.getElementById('score2').value = s1;
+      
+      document.getElementById('disp1').textContent = s2;
+      document.getElementById('disp2').textContent = s1;
+      sync();
+    };
+
+    // Reset logic
+    window.resetScores = () => {
+      if(!confirm("Reset everything?")) return;
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        el.value = id.includes('score') ? "0" : "";
+      });
+      document.getElementById('disp1').textContent = "0";
+      document.getElementById('disp2').textContent = "0";
+      sync();
+    };
+
+    // Listen for remote changes
+    scoreRef.on('value', snap => {
+      const data = snap.val();
+      if (!data) return;
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (document.activeElement !== el) {
+          el.value = data[id] || (id.includes('score') ? "0" : "");
+        }
+      });
+      document.getElementById('disp1').textContent = data.score1 || 0;
+      document.getElementById('disp2').textContent = data.score2 || 0;
+    });
+
+    setInterval(() => {
+      document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+    }, 1000);
+  </script>
+</body>
+</html>
