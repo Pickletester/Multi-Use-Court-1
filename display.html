@@ -304,6 +304,21 @@
     }
     .bar.skill #cn { background: #000; }
     .bar.skill #cn .val { color: #fff; }
+
+    /* Light skill colors (Advanced/Pro) need BLACK text for readability */
+    .bar.skill.skill-light #cur .val,
+    .bar.skill.skill-light #nxt .val,
+    .bar.skill.skill-light #cd .val,
+    .bar.skill.skill-light #now .val,
+    .bar.skill.skill-light .meta {
+      color: #000 !important;
+    }
+    .bar.skill.skill-light #cd .label,
+    .bar.skill.skill-light #now .label { color: rgba(0,0,0,0.7) !important; }
+    .bar.skill.skill-light .live-dot {
+      background: #000 !important;
+      box-shadow: 0 0 8px rgba(0,0,0,0.5) !important;
+    }
     .bar.expiring #cn { background: transparent; }
     .bar.expiring #cn .val { color: #fff; }
     .bar.red #cn { background: transparent; }
@@ -328,10 +343,14 @@
 
     .expired-msg {
       font-family: 'Bebas Neue', sans-serif !important;
-      font-size:30px !important;
+      font-size:22px !important;
       color: var(--red);
       letter-spacing:.05em;
+      line-height: 1 !important;
+      white-space: normal !important;
+      text-align: center;
     }
+    .expired-msg span { display: block; }
 
     /* ── EVENT OVERLAY ── */
     #infoOverlay {
@@ -685,8 +704,26 @@
     if(mode==="expiring"){ bar.className="bar expiring"; cn.className="sec alert"; cd.className="sec urgent"; return; }
     if(mode==="red"){ bar.className="bar red"; cn.className="sec alert"; cd.className="sec urgent"; return; }
     cn.className="sec"; cd.className="sec";
-    if(mode==="skill"){ var base=currentLevelBg||"#22335d"; bar.style.setProperty("--bar-skill-b",base); bar.style.setProperty("--bar-skill-a",darkenHex(base,0.4)); bar.className="bar skill"; return; }
+    if(mode==="skill"){
+      var base=currentLevelBg||"#22335d";
+      bar.style.setProperty("--bar-skill-b",base);
+      bar.style.setProperty("--bar-skill-a",darkenHex(base,0.4));
+      var isLight = isLightColor(base);
+      bar.className = "bar skill" + (isLight ? " skill-light" : "");
+      return;
+    }
     bar.className="bar";
+  }
+
+  function isLightColor(hex){
+    var h = String(hex||"").replace("#","");
+    if(h.length===3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    if(h.length!==6) return false;
+    var r = parseInt(h.substr(0,2),16);
+    var g = parseInt(h.substr(2,2),16);
+    var b = parseInt(h.substr(4,2),16);
+    var luminance = (0.299*r + 0.587*g + 0.114*b);
+    return luminance > 140;
   }
 
   function resetExpiredVisuals(){ var o=document.getElementById("cdv"); o.className="val"; var l=document.getElementById("cdlbl"); l.textContent=(cdMode==="next")?"Time Until":"Time Left"; }
@@ -716,7 +753,7 @@
       } else {
         if(cdMode==="cur"){
           setBarMode("red"); lbl.textContent="";
-          out.className="val expired-msg"; out.textContent="TIME EXPIRED";
+          out.className="val expired-msg"; out.innerHTML="<span>TIME</span><span>EXPIRED</span>";
           var curEl=document.getElementById("curv");
           curEl.innerHTML=lastCurName?"Time expired — "+lastCurName:"Time expired";
           setTimeout(function(){
@@ -786,7 +823,29 @@
   function refresh(){ var url=PROXY_BASE+"?court="+COURT_NO; xhrJSON(url,apiHeaders(),8000,function(err,data,status){ if(!err&&data){ showErrBadge(false); refreshDelayMs=BASE_REFRESH_MS; cacheEv=pickArray(data.events); cacheRes=pickArray(data.reservations); computeAndRender(); } else { var msg="API issue — backing off…"; if(status===429) msg="Rate limited — backing off…"; if(status===403) msg="Forbidden — check API key"; showErrBadge(true,msg); refreshDelayMs=Math.min(refreshDelayMs*2,MAX_BACKOFF_MS); try{ computeAndRender(); }catch(e){} } scheduleNext(); }); }
 
   var infoOverlay=document.getElementById("infoOverlay"),overlayBodyEl=document.getElementById("overlayBody"),overlayBoxEl=document.getElementById("overlayBox"),overlayLvlEl=document.getElementById("overlayLevel");
-  function applyOverlayStyles(){ if(!overlayBoxEl||!overlayLvlEl) return; if(currentLevelLabel){ overlayLvlEl.style.display="inline-block"; overlayLvlEl.textContent=currentLevelLabel; overlayLvlEl.style.backgroundColor=currentLevelBg||"#0c0c0c"; } else { overlayLvlEl.style.display="none"; overlayLvlEl.textContent=""; } }
+  function applyOverlayStyles(){
+    if(!overlayBoxEl||!overlayLvlEl) return;
+    if(currentLevelLabel){
+      overlayLvlEl.style.display="inline-block";
+      overlayLvlEl.textContent=currentLevelLabel;
+      overlayBoxEl.style.background = currentLevelBg || "#0c0c0c";
+      var useDark = isLightColor(currentLevelBg || "#0c0c0c");
+      var textColor = useDark ? "#000" : "#fff";
+      overlayLvlEl.style.color = textColor;
+      overlayLvlEl.style.backgroundColor = useDark ? "rgba(0,0,0,0.18)" : "rgba(255,255,255,0.15)";
+      overlayBoxEl.style.color = textColor;
+      overlayBodyEl.style.color = textColor;
+      overlayBoxEl.style.border = useDark ? "1px solid rgba(0,0,0,0.2)" : "1px solid rgba(255,255,255,0.2)";
+    } else {
+      overlayLvlEl.style.display="none";
+      overlayLvlEl.textContent="";
+      overlayLvlEl.style.color="";
+      overlayBoxEl.style.background = "";
+      overlayBoxEl.style.color = "";
+      overlayBodyEl.style.color = "";
+      overlayBoxEl.style.border = "";
+    }
+  }
   function isInLastMinuteOfEvent(){ if(!cdTarget||cdMode!=="cur") return false; var diff=cdTarget-Date.now(); return diff>0&&diff<=BDAY_END_BUFFER_MS; }
   function showOverlay(){ if(isInLastMinuteOfEvent()) return; if(bdayActive) return; if(!infoOverlay) return; if(!document.getElementById("scorebugView").classList.contains("active")) return; var curEl=document.getElementById("curv"); if(curEl&&overlayBodyEl) overlayBodyEl.innerHTML=curEl.innerHTML||curEl.textContent||""; applyOverlayStyles(); infoOverlay.classList.add("active"); setTimeout(function(){ infoOverlay.classList.remove("active"); },10000); }
   function startOverlayLoop(){ if(!infoOverlay) return; var now=new Date(); var ms=(60-now.getSeconds())*1000-now.getMilliseconds(); if(ms<100) ms=100; setTimeout(function(){ showOverlay(); setInterval(showOverlay,60000); },ms+2000); }
@@ -806,7 +865,7 @@
   var bdayActive  = false;
   var BALLOON_COLORS = ["#3CC440","#7EE882","#1E2B6E","#c084fc","#ff9de2","#fbbf24","#60a5fa","#a78bfa"];
 
-  function spawnBalloons(){ var container=document.getElementById("balloonContainer"); if(!container) return; container.innerHTML=""; var count=10; for(var i=0;i<count;i++){ (function(idx){ setTimeout(function(){ var b=document.createElement("div"); b.className="balloon"; var left=8+Math.random()*84; var color=BALLOON_COLORS[Math.floor(Math.random()*BALLOON_COLORS.length)]; var sway=(Math.random()>0.5?1:-1)*(15+Math.random()*35)+"px"; var dur=(4.8+Math.random()*2.4).toFixed(1)+"s"; var delay=(Math.random()*1.5).toFixed(2)+"s"; b.style.left=left+"%"; b.style.background=color; b.style.setProperty("--sway",sway); b.style.animationDuration=dur; b.style.animationDelay=delay; container.appendChild(b); },idx*150); })(i); } }
+  function spawnBalloons(){ var container=document.getElementById("balloonContainer"); if(!container) return; container.innerHTML=""; var count=24; for(var i=0;i<count;i++){ (function(idx){ setTimeout(function(){ var b=document.createElement("div"); b.className="balloon"; var left=8+Math.random()*84; var color=BALLOON_COLORS[Math.floor(Math.random()*BALLOON_COLORS.length)]; var sway=(Math.random()>0.5?1:-1)*(15+Math.random()*35)+"px"; var dur=(3+Math.random()*1.5).toFixed(1)+"s"; var delay=(Math.random()*0.5).toFixed(2)+"s"; b.style.left=left+"%"; b.style.background=color; b.style.setProperty("--sway",sway); b.style.animationDuration=dur; b.style.animationDelay=delay; container.appendChild(b); },idx*40); })(i); } }
   function showBirthdayOverlay(){ if(!bdayOverlay||!BIRTHDAY_NAMES||BIRTHDAY_NAMES.length===0) return; if(infoOverlay&&infoOverlay.classList.contains("active")) return; if(isInLastMinuteOfEvent()) return; if(bdayActive) return; if(!document.getElementById("scorebugView").classList.contains("active")) return; var names=BIRTHDAY_NAMES; var nameStr=""; if(names.length===1) nameStr=names[0]; else if(names.length===2) nameStr=names[0]+" & "+names[1]; else nameStr=names.slice(0,-1).join(", ")+" & "+names[names.length-1]; if(bdayNamesEl) bdayNamesEl.textContent=nameStr; spawnBalloons(); bdayActive=true; bdayOverlay.classList.add("active"); setTimeout(function(){ bdayOverlay.classList.remove("active"); setTimeout(function(){ bdayActive=false; },700); },BDAY_DURATION_MS); }
   function fetchBirthdayNames(cb){ var xhr=new XMLHttpRequest(); xhr.open("GET",BDAY_READER_URL,true); xhr.timeout=5000; xhr.onreadystatechange=function(){ if(xhr.readyState===4&&xhr.status>=200&&xhr.status<300){ try{ var data=JSON.parse(xhr.responseText); BIRTHDAY_NAMES=Array.isArray(data.names)?data.names:[]; }catch(e){ BIRTHDAY_NAMES=[]; } if(cb) cb(); } }; xhr.ontimeout=xhr.onerror=function(){ BIRTHDAY_NAMES=[]; if(cb) cb(); }; xhr.send(); }
   function startBirthdayLoop(){ fetchBirthdayNames(); setInterval(fetchBirthdayNames,BDAY_FETCH_MS); var now=new Date(); var totalSec=now.getMinutes()*60+now.getSeconds(); var secsUntilNext=900-(totalSec%900); var msUntilNext=secsUntilNext*1000-now.getMilliseconds(); if(msUntilNext<500) msUntilNext+=900000; setTimeout(function(){ showBirthdayOverlay(); setInterval(showBirthdayOverlay,BDAY_INTERVAL_MS); },msUntilNext); }
