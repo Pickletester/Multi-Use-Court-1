@@ -49,7 +49,7 @@
       max-width: 864px;
       max-height: 384px;
       display: grid;
-      grid-template-columns: 1.42fr 0.78fr 0.78fr 1.42fr 1.25fr;
+      grid-template-columns: 1.28fr 0.92fr 0.92fr 1.28fr 1.40fr;
       gap: 4px;
       padding: 4px;
       background: rgba(255,255,255,0.95);
@@ -89,12 +89,12 @@
       z-index: 1;
       width: 100%;
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: clamp(600px, 5vw, 600px);
+      font-size: 58px;
       line-height: 0.95;
       font-weight: 800;
       text-align: center;
       color: #fff;
-      padding: 10px 10px;
+      padding: 6px 8px;
       text-transform: none;
       letter-spacing: 0;
       word-break: normal;
@@ -124,11 +124,11 @@
       position: relative;
       z-index: 1;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(210px, 27vw, 285px);
+      font-size: 250px;
       font-weight: 400;
       color: #fff;
       text-align: center;
-      line-height: 0.82;
+      line-height: 0.78;
       letter-spacing: -0.01em;
       text-shadow: 0 4px 10px rgba(0,0,0,0.22);
       transform: translateY(4px);
@@ -143,14 +143,14 @@
       grid-template-rows: 1fr 1fr 1fr;
       align-items: stretch;
       gap: 0;
-      padding: 10px 12px;
+      padding: 8px 10px;
       text-align: center;
     }
 
     .info-block {
       width: 100%;
       min-width: 0;
-      padding: 8px 0;
+      padding: 6px 0;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -161,28 +161,29 @@
 
     .info-label {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.24em;
       color: #69a7ef;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .info-value {
       font-family: 'Barlow', sans-serif;
       font-weight: 900;
       color: white;
-      font-size: 20px;
+      font-size: 24px;
       line-height: 1.0;
       letter-spacing: 0;
-      word-break: break-word;
+      word-break: normal;
+      overflow-wrap: anywhere;
       max-width: 100%;
     }
 
     #disp-event {
-      font-size: 18px;
-      line-height: 1.02;
+      font-size: 24px;
+      line-height: 0.98;
       white-space: normal;
       overflow: hidden;
       display: -webkit-box;
@@ -195,15 +196,16 @@
     }
     #disp-games {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 48px;
+      font-size: 64px;
       line-height: 0.88;
       letter-spacing: 0.02em;
       white-space: nowrap;
       letter-spacing: 0;
+      max-width: 100%;
     }
     #disp-clock {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 52px;
+      font-size: 68px;
       font-weight: 400;
       color: white;
       line-height: 0.86;
