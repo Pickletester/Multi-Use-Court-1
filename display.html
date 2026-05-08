@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Court 1</title>
+  <meta charset="UTF-8">
+  <title>Court 1 – Display</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,13 +22,84 @@
       --bar-skill-b: #22335d;
     }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      margin:0; padding:0; width:100vw; height:100vh;
-      overflow:hidden; background:transparent;
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+      background: transparent;
       font-family: 'Barlow', Arial, sans-serif;
+      color: white;
     }
 
-    /* ── BAR ────────────────────────────────────────── */
+    /* ═══ SCOREBOARD VIEW (unchanged) ═══ */
+    #scoreboardView {
+      display: none;
+      width: 100vw; height: 100vh;
+      background: black;
+      align-items: center; justify-content: center;
+    }
+    #scoreboardView.active { display: flex; }
+    .sb-container { position: relative; width: 832px; height: 384px; display: flex; border: 1px solid #444; }
+    .player-area { width: 245px; display: flex; flex-direction: column; }
+    .player-box { height: 192px; border: 1px solid white; background: #1a365d; display: flex; align-items: center; justify-content: center; }
+    .player-name { font-size: 24px; font-weight: bold; text-align: center; color: white; padding: 8px; word-break: break-word; }
+    .score-area { width: 110px; border: 1px solid white; background: #808080; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .score-num { font-size: 85px; font-weight: bold; color: white; text-align: center; line-height: 1; }
+    .info-panel {
+      flex-grow: 1;
+      background: #0a0a0a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 16px 12px;
+      border-left: 1px solid #444;
+      text-align: center;
+    }
+    .info-block { width: 100%; padding: 14px 0; border-bottom: 1px solid #222; }
+    .info-block:last-child { border-bottom: none; }
+    .info-label {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #5b9bd5;
+      margin-bottom: 6px;
+    }
+    .info-value {
+      font-weight: 900;
+      color: white;
+      font-size: 15px;
+      line-height: 1.1;
+      letter-spacing: 0.04em;
+      word-break: break-word;
+    }
+    #disp-event {
+      font-size: 17px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+    #disp-games { font-size: 24px; }
+    #disp-clock {
+      font-size: 26px;
+      font-weight: 900;
+      color: white;
+      letter-spacing: 0.04em;
+    }
+    @keyframes scoreFlash { 0%{ transform:scale(1); } 30%{ transform:scale(1.15); color:#ffe066; } 100%{ transform:scale(1); } }
+    .flash { animation: scoreFlash 0.4s ease; }
+
+    /* ═══ SCOREBUG VIEW — REDESIGNED ═══ */
+    #scorebugView {
+      display: none;
+      width: 100vw; height: 100vh;
+      background: transparent;
+    }
+    #scorebugView.active { display: block; }
+
     .bar {
       position:fixed; left:0; right:0; bottom:0;
       height:72px;
@@ -116,7 +187,7 @@
     }
     .bar.expiring #cd .label { color: rgba(255,255,255,0.85); }
     .bar.expiring #cd .val {
-      font-size: 44px;
+      font-size: 38px;
       color: #fff;
     }
 
@@ -172,46 +243,21 @@
       color:#fff;
     }
     #cur .val, #nxt .val {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size:20px;
+      font-size:18px;
       font-weight:700;
-      letter-spacing: 0.02em;
       white-space:normal;
       overflow-wrap:anywhere;
       word-break:break-word;
-      max-height:44px;
+      max-height:42px;
       overflow:hidden;
-      line-height:1.05;
+      line-height:1.1;
     }
     #cd .val {
       font-family: 'Bebas Neue', sans-serif;
       font-size:30px;
       letter-spacing:.02em;
       white-space:nowrap;
-      transition: font-size 300ms ease, color 300ms ease, text-shadow 300ms ease;
-    }
-    /* Bigger when showing just minutes (sub-60 min) */
-    #cd.minutes-only .val {
-      font-size:42px;
-    }
-    /* 10 minutes or less — yellow warning */
-    #cd.warn .val {
-      color: #ffd83a;
-    }
-    /* 5 minutes or less — glowing red */
-    #cd.danger .val {
-      color: #ff5a5a;
-      animation: dangerGlow 1.2s ease-in-out infinite;
-    }
-    @keyframes dangerGlow {
-      0%, 100% {
-        color: #ff5a5a;
-        text-shadow: 0 0 6px rgba(255,0,0,0.4), 0 0 12px rgba(255,40,40,0.3);
-      }
-      50% {
-        color: #ff8888;
-        text-shadow: 0 0 10px rgba(255,30,30,0.7), 0 0 20px rgba(255,60,60,0.5);
-      }
+      transition: font-size 300ms ease, color 300ms ease;
     }
     #cd.urgent .val {
       font-size:34px;
@@ -273,17 +319,6 @@
       background: #000 !important;
       box-shadow: 0 0 8px rgba(0,0,0,0.5) !important;
     }
-    /* On light skill backgrounds, warn/danger countdown stays black with subtle pulse */
-    .bar.skill.skill-light #cd.warn .val { color: #000 !important; }
-    .bar.skill.skill-light #cd.danger .val {
-      color: #000 !important;
-      animation: dangerGlowDark 1.2s ease-in-out infinite !important;
-      text-shadow: none !important;
-    }
-    @keyframes dangerGlowDark {
-      0%, 100% { color: #000; }
-      50%      { color: #4a0000; }
-    }
     .bar.expiring #cn { background: transparent; }
     .bar.expiring #cn .val { color: #fff; }
     .bar.red #cn { background: transparent; }
@@ -306,24 +341,6 @@
       box-shadow: 0 0 6px currentColor;
     }
 
-
-    .book-front-desk-text {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 34px;
-      font-weight: 400;
-      letter-spacing: 0.08em;
-      color: #fff;
-      text-transform: uppercase;
-      line-height: 1;
-      white-space: nowrap;
-    }
-    .bar.red #cur .label,
-    .bar.red #nxt .label,
-    .bar.red #now .label,
-    .bar.red #cd .label {
-      color: rgba(255,255,255,0.82);
-    }
-
     .expired-msg {
       font-family: 'Bebas Neue', sans-serif !important;
       font-size:22px !important;
@@ -337,7 +354,7 @@
 
     /* ── EVENT OVERLAY ── */
     #infoOverlay {
-      position:fixed; top:0; left:0; right:0; bottom:0;
+      position:fixed; inset:0;
       z-index:9999; background:rgba(5,8,24,.85);
       display:flex; align-items:center; justify-content:center;
       opacity:0; pointer-events:none;
@@ -348,13 +365,13 @@
     #infoOverlay.active { opacity:1; pointer-events:auto; }
 
     .overlayBox {
-      transform:scale(.82);
       background: linear-gradient(160deg, #0a1030 0%, #050818 100%);
       border: 1px solid rgba(60,196,64,0.25);
       border-radius:24px;
       padding:48px 80px 56px;
       max-width:80%;
       text-align:center; color:#fff;
+      transform:scale(.82);
       box-shadow:
         0 0 0 1px rgba(255,255,255,0.05) inset,
         0 12px 40px rgba(0,0,0,0.6),
@@ -420,7 +437,7 @@
 
     /* ── BIRTHDAY OVERLAY ── */
     #bdayOverlay {
-      position:fixed; top:0; left:0; right:0; bottom:0;
+      position:fixed; inset:0;
       z-index:10000; background: rgba(5,8,24,0.88);
       display:flex; align-items:center; justify-content:center;
       opacity:0; pointer-events:none;
@@ -439,7 +456,7 @@
       max-width:75%;
       text-align:center;
       color:#fff;
-      z-index:2;
+      position:relative; z-index:2;
       box-shadow:
         0 0 0 1px rgba(255,255,255,0.05) inset,
         0 12px 40px rgba(0,0,0,0.6),
@@ -507,7 +524,6 @@
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)) brightness(1.05);
     }
 
-    /* Balloons — fewer, more on-brand */
     .balloon-container {
       position:fixed; inset:0;
       pointer-events:none; z-index:9999; overflow:hidden;
@@ -546,359 +562,148 @@
       max-width: calc(100vw - 20px);
       box-shadow: 0 6px 16px rgba(0,0,0,0.4);
     }
-    #debugLog {
-      position:fixed; top:10px; right:10px; z-index:10000;
-      background: rgba(0,0,0,0.85);
-      color: #0f0;
-      padding: 8px 10px;
-      border-radius: 6px;
-      font: 11px/1.5 monospace;
-      max-width: 360px;
-      max-height: 200px;
-      overflow-y: auto;
-      display:none;
-    }
-
-
-    #testPanel {
-      position:fixed; top:10px; left:10px; z-index:10001;
-      background: rgba(0,0,0,0.92);
-      border: 1px solid rgba(60,196,64,0.4);
-      padding: 12px;
-      border-radius: 8px;
-      display:none;
-      flex-direction: column;
-      gap: 6px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-      font-family: 'Barlow Condensed', sans-serif;
-    }
-    #testPanel.open { display: flex; }
-    #testPanel .test-title {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--green);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-    #testPanel button {
-      background: rgba(255,255,255,0.08);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.15);
-      padding: 6px 12px;
-      border-radius: 4px;
-      font: 600 12px 'Barlow Condensed', sans-serif;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.15s;
-      text-align: left;
-    }
-    #testPanel button:hover { background: rgba(60,196,64,0.2); border-color: var(--green); }
-    #testPanel button.reset { background: rgba(255,68,68,0.15); border-color: rgba(255,68,68,0.4); margin-top: 4px; }
-    #testPanel button.reset:hover { background: rgba(255,68,68,0.3); }
-    #testPanel .hint {
-      font-size: 9px;
-      color: rgba(255,255,255,0.4);
-      margin-top: 4px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
   </style>
 </head>
 <body>
-
   <div id="errBadge">API issue — backing off…</div>
-  <div id="debugLog"></div>
 
-
-  <div id="testPanel">
-    <div class="test-title">Skill Test Mode</div>
-    <button data-test="2.0–2.99 Beginner">Beginner (2.0–2.99)</button>
-    <button data-test="3.0–3.49 Intermediate">Intermediate (3.0–3.49)</button>
-    <button data-test="3.5–3.99 Intermediate+">Intermediate+ (3.5–3.99)</button>
-    <button data-test="4.0–4.49 Advanced Open Play">Advanced (4.0–4.49)</button>
-    <button data-test="4.5+ Open Play">Pro (4.5+)</button>
-    <button data-test="__overlay__">Show Event Overlay</button>
-    <button data-test="__bday__">Show Birthday</button>
-    <button data-test="__warn__">Show 10m Warning (Yellow)</button>
-    <button data-test="__danger__">Show 5m Danger (Red Glow)</button>
-    <button data-test="__urgent__">Show Time Expiring</button>
-    <button data-test="__book__">Show Book at Front Desk Red Bar</button>
-    <button class="reset" data-test="__reset__">Resume Live Data</button>
-    <div class="hint">Press T to toggle · ESC to close</div>
-  </div>
-
-  <div class="bar" id="bar">
-    <div id="cn"  class="sec">
-      <div class="val" id="cno">1</div>
-    </div>
-    <div id="cur" class="sec">
-      <div class="label"><span class="live-dot"></span>In Progress</div>
-      <div class="val" id="curv">Loading...</div>
-    </div>
-    <div id="expireMsg">
-      <div class="expire-line1">Wrap It Up</div>
-      <div class="expire-line2">Court Time Ending Soon</div>
-    </div>
-    <div id="cd"  class="sec">
-      <div class="label" id="cdlbl">Time Left</div>
-      <div class="val" id="cdv">--</div>
-    </div>
-    <div id="nxt" class="sec">
-      <div class="label">Upcoming</div>
-      <div class="val" id="nxtv">Loading next...</div>
-    </div>
-    <div id="now" class="sec">
-      <div class="label">Now</div>
-      <div class="val" id="clock">--:--</div>
+  <!-- SCOREBOARD (unchanged) -->
+  <div id="scoreboardView">
+    <div class="sb-container">
+      <div class="player-area">
+        <div class="player-box"><div class="player-name" id="disp-p4">PLAYER 4</div></div>
+        <div class="player-box"><div class="player-name" id="disp-p3">PLAYER 3</div></div>
+      </div>
+      <div class="score-area"><div class="score-num" id="disp-score1">0</div></div>
+      <div class="score-area"><div class="score-num" id="disp-score2">0</div></div>
+      <div class="player-area">
+        <div class="player-box"><div class="player-name" id="disp-p1">PLAYER 1</div></div>
+        <div class="player-box"><div class="player-name" id="disp-p2">PLAYER 2</div></div>
+      </div>
+      <div class="info-panel">
+        <div class="info-block">
+          <div class="info-label">Event</div>
+          <div class="info-value" id="disp-event">TOURNAMENT</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">Games</div>
+          <div class="info-value" id="disp-games">0-0, 0-0</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">Time</div>
+          <div id="disp-clock">--:--</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Event overlay -->
-  <div id="infoOverlay">
-    <div class="overlayBox" id="overlayBox">
-      <img src="levelup-logo.png" alt="LevelUp Pickleball" class="overlayLogo">
-      <div class="overlayLevel" id="overlayLevel" style="display:none;"></div>
-      <div class="overlayBody"  id="overlayBody">Loading...</div>
+  <!-- SCOREBUG (redesigned) -->
+  <div id="scorebugView">
+    <div class="bar" id="bar">
+      <div id="cn"  class="sec">
+        <div class="val" id="cno">1</div>
+      </div>
+      <div id="cur" class="sec">
+        <div class="label"><span class="live-dot"></span>In Progress</div>
+        <div class="val" id="curv">Loading...</div>
+      </div>
+      <div id="expireMsg">
+        <div class="expire-line1">Wrap It Up</div>
+        <div class="expire-line2">Court Time Ending Soon</div>
+      </div>
+      <div id="cd"  class="sec">
+        <div class="label" id="cdlbl">Time Left</div>
+        <div class="val" id="cdv">--</div>
+      </div>
+      <div id="nxt" class="sec">
+        <div class="label">Upcoming</div>
+        <div class="val" id="nxtv">Loading next...</div>
+      </div>
+      <div id="now" class="sec">
+        <div class="label">Now</div>
+        <div class="val" id="clock">--:--</div>
+      </div>
+    </div>
+
+    <!-- Event overlay -->
+    <div id="infoOverlay">
+      <div class="overlayBox" id="overlayBox">
+        <img src="levelup-logo.png" alt="LevelUp Pickleball" class="overlayLogo">
+        <div class="overlayLevel" id="overlayLevel" style="display:none;"></div>
+        <div class="overlayBody" id="overlayBody">Loading...</div>
+      </div>
     </div>
   </div>
 
-  <!-- Birthday overlay -->
-  <div id="bdayOverlay">
-    <div class="balloon-container" id="balloonContainer"></div>
-    <div class="bdayBox">
-      <span class="bdayEmoji">🎂</span>
-      <div class="bdayTitle">Happy Birthday</div>
-      <div class="bdayNames" id="bdayNames">Someone</div>
-      <div class="bdaySub">From everyone at LevelUp</div>
-      <img src="levelup-logo.png" alt="LevelUp" class="bdayLogo">
-    </div>
-  </div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+  const app = initializeApp({
+    databaseURL: "https://pickleballscoreboard-a963e-default-rtdb.firebaseio.com",
+    projectId: "pickleballscoreboard-a963e",
+  });
+  const db = getDatabase(app);
+  onValue(ref(db, 'view'), (snap) => {
+    const v = snap.val() || 'scorebug';
+    document.getElementById('scoreboardView').classList.toggle('active', v === 'scoreboard');
+    document.getElementById('scorebugView').classList.toggle('active',   v === 'scorebug');
+  });
+  const fieldMap = { p1:'disp-p1', p2:'disp-p2', p3:'disp-p3', p4:'disp-p4', score1:'disp-score1', score2:'disp-score2', event:'disp-event', games:'disp-games' };
+  function flash(el) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); el.addEventListener('animationend', () => el.classList.remove('flash'), { once: true }); }
+  onValue(ref(db, 'scoreboard'), (snap) => {
+    const data = snap.val(); if (!data) return;
+    Object.entries(fieldMap).forEach(([key, id]) => {
+      if (data[key] === undefined) return;
+      const el = document.getElementById(id); if (!el) return;
+      const v = String(data[key]);
+      if (el.textContent !== v) { if (key === 'score1' || key === 'score2') flash(el); el.textContent = v; }
+    });
+  });
+  function tick() {
+    const el = document.getElementById('disp-clock');
+    if (el) {
+      const now = new Date();
+      let h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      el.textContent = h + ':' + m + ':' + s + ' ' + ampm;
+    }
+    setTimeout(tick, 1000);
+  }
+  tick();
+</script>
 
 <script>
 (function(){
+  var COURT_NO=1, TZ="America/New_York";
+  var PROXY_BASE="https://courtreserve-proxy.s-jackson.workers.dev/api/day";
+  var API_KEY="", BASE_REFRESH_MS=30000, MAX_BACKOFF_MS=300000;
+  var SHOW_DEBUG=false, EXCLUDE_EVENT_NAMES=["Pickleball 101"];
+  var refreshDelayMs=BASE_REFRESH_MS, refreshTimer=null;
+  var currentLevelLabel="", currentLevelBg="#0c0c0c", currentLevelBubble=null, currentIsSkill=false;
+  var cdTimer=null, cdMode="none", cdTarget=null;
+  var nxtStart=null, lastCurName="", lastGood=null;
+  var cacheEv=[], cacheRes=[];
 
-  // ── CONFIG ────────────────────────────────────────────────
-  var COURT_NO   = 1;
-  var TZ         = "America/New_York";
-  var PROXY_BASE = "https://courtreserve-proxy.s-jackson.workers.dev/api/day";
-  var API_KEY    = "";
-
-  var BASE_REFRESH_MS = 30000;
-  var MAX_BACKOFF_MS  = 300000;
-  var SHOW_DEBUG = false;
-  var EXCLUDE_EVENT_NAMES = ["Pickleball 101"];
-
-  var BIRTHDAY_NAMES    = [];
-  var BDAY_READER_URL   = 'https://levelup-birthday-reader-led-screens.s-jackson.workers.dev/';
-  var BDAY_INTERVAL_MS  = 15 * 60 * 1000;
-  var BDAY_DURATION_MS  = 10 * 1000;
-  var BDAY_END_BUFFER_MS = 60 * 1000;
-  var BDAY_FETCH_MS     = 15 * 60 * 1000;
-
-  var refreshDelayMs  = BASE_REFRESH_MS;
-  var refreshTimer    = null;
-  var currentLevelLabel = "", currentLevelBg = "#0c0c0c", currentLevelBubble = null, currentIsSkill = false;
-  var cdTimer = null, cdMode = "none", cdTarget = null;
-  var nxtStart = null, lastCurName = "", lastGood = null;
-  var cacheEv = [], cacheRes = [];
-
-  // ── DEBUG ────────────────────────────────────────────
-  function dbg(msg){
-    if(!SHOW_DEBUG) return;
-    var el = document.getElementById("debugLog");
-    if(!el) return;
-    el.style.display = "block";
-    var d = document.createElement("div");
-    var t = new Date();
-    d.textContent = pad2(t.getHours())+":"+pad2(t.getMinutes())+":"+pad2(t.getSeconds())+" "+msg;
-    el.appendChild(d);
-    while(el.children.length > 40) el.removeChild(el.firstChild);
-    el.scrollTop = el.scrollHeight;
-  }
-
-  // ── UTILS ────────────────────────────────────────────
   function pad2(n){ return (n<10?"0":"")+n; }
+  function toLocalNY(d){ try{ return d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:TZ}); }catch(e){ return d.getHours()+":"+pad2(d.getMinutes()); } }
+  function parseTimeAny(t){ if(!t) return null; if(Object.prototype.toString.call(t)==="[object Date]") return isNaN(t.getTime())?null:t; if(typeof t==="number") return new Date(t>1e12?t:t*1000); if(typeof t==="string"){ var s=t.trim(); if(!s) return null; var m=s.match(/^\/Date\((-?\d+)(?:[+-]\d{4})?\)\/$/i); if(m) return new Date(parseInt(m[1],10)); var d=new Date(s); if(!isNaN(d.getTime())) return d; var a=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s*(AM|PM)?$/i); if(a){ var hr=+a[4],mn=+a[5],ap=(a[6]||"").toUpperCase(); if(ap==="PM"&&hr<12) hr+=12; if(ap==="AM"&&hr===12) hr=0; var d2=new Date(+a[3],+a[1]-1,+a[2],hr,mn,0); if(!isNaN(d2.getTime())) return d2; } var b=s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/); if(b){ var d3=new Date(+b[1],+b[2]-1,+b[3],+b[4],+b[5],+(b[6]||0)); if(!isNaN(d3.getTime())) return d3; } } return null; }
+  function pickArray(c){ if(!c) return []; if(Array.isArray(c)) return c; if(typeof c==="object"){ if(Array.isArray(c.Data)) return c.Data; if(Array.isArray(c.data)) return c.data; if(Array.isArray(c.Items)) return c.Items; if(Array.isArray(c.Results)) return c.Results; } return []; }
+  function containsCourtN(rec,n){ n=Number(n)||1; if(!rec) return false; var visited=(typeof WeakSet!=="undefined")?new WeakSet():null; function strMatchesN(s){ if(!s) return false; s=String(s).toLowerCase(); if(s.indexOf("court")===-1) return false; var exact=new RegExp("courts?\\s*#?\\s*"+n+"(?!\\d)","g"); if(exact.test(s)) return true; var rg=/courts?\s*#?\s*(\d+)\s*[-–]\s*#?\s*(\d+)/g,m; while((m=rg.exec(s))!==null){ var a=+m[1],b=+m[2]; if(n>=Math.min(a,b)&&n<=Math.max(a,b)) return true; } var lg=/courts?\s*#?\s*(\d+)(?!\d)/g,lm; while((lm=lg.exec(s))!==null){ if(parseInt(lm[1],10)===n) return true; } return false; } function courtRelatedKey(k){ if(!k) return false; var s=String(k).toLowerCase(); return s==="courtnumber"||s==="courtno"||s==="courtid"||s==="court_id"||s==="court_number"||s==="resourceid"||s==="resource_id"||s==="facilitycourtid"; } function scan(val,key){ if(val==null) return false; var t=typeof val; if(t==="number") return courtRelatedKey(key)&&(val===n); if(t==="string") return strMatchesN(val); if(Array.isArray(val)){ for(var i=0;i<val.length;i++) if(scan(val[i],key)) return true; return false; } if(t==="object"){ if(visited&&visited.has(val)) return false; if(visited) visited.add(val); for(var k in val){ if(!Object.prototype.hasOwnProperty.call(val,k)) continue; if(scan(val[k],k)) return true; } } return false; } return scan(rec,""); }
+  function isExcludedByName(name){ if(!name||!EXCLUDE_EVENT_NAMES.length) return false; var nl=String(name).toLowerCase(); for(var i=0;i<EXCLUDE_EVENT_NAMES.length;i++) if(nl.indexOf(EXCLUDE_EVENT_NAMES[i].toLowerCase())>=0) return true; return false; }
+  function tickClock(){ document.getElementById("clock").textContent=toLocalNY(new Date()); var now=new Date(); setTimeout(tickClock,1000-now.getMilliseconds()); }
+  function xhrJSON(url,headers,ms,cb){ try{ var x=new XMLHttpRequest(); x.open("GET",url,true); x.timeout=ms||8000; if(headers) for(var k in headers) if(headers.hasOwnProperty(k)) x.setRequestHeader(k,headers[k]); x.onreadystatechange=function(){ if(x.readyState===4){ if(x.status>=200&&x.status<300){ var d=null; try{d=JSON.parse(x.responseText);}catch(e){} cb(null,d,x.status); } else cb(new Error("HTTP "+x.status),null,x.status); } }; x.ontimeout=function(){ cb(new Error("timeout"),null,0); }; x.onerror=function(){ cb(new Error("network"),null,0); }; x.send(); }catch(e){ cb(e,null,0); } }
+  function apiHeaders(){ var h={}; if(API_KEY&&API_KEY.trim()) h["X-API-Key"]=API_KEY.trim(); return h; }
 
-  function toLocalNY(d){
-    try{
-      return d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:TZ});
-    }catch(e){ return d.getHours()+":"+pad2(d.getMinutes()); }
-  }
-
-  function parseTimeAny(t){
-    if(!t) return null;
-    if(Object.prototype.toString.call(t)==="[object Date]") return isNaN(t.getTime())?null:t;
-    if(typeof t==="number") return new Date(t>1e12?t:t*1000);
-    if(typeof t==="string"){
-      var s=t.trim(); if(!s) return null;
-      var m=s.match(/^\/Date\((-?\d+)(?:[+-]\d{4})?\)\/$/i);
-      if(m) return new Date(parseInt(m[1],10));
-      var d=new Date(s);
-      if(!isNaN(d.getTime())) return d;
-      var a=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
-      if(a){
-        var hr=+a[4],mn=+a[5],ap=(a[6]||"").toUpperCase();
-        if(ap==="PM"&&hr<12) hr+=12;
-        if(ap==="AM"&&hr===12) hr=0;
-        var d2=new Date(+a[3],+a[1]-1,+a[2],hr,mn,0);
-        if(!isNaN(d2.getTime())) return d2;
-      }
-      var b=s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/);
-      if(b){
-        var d3=new Date(+b[1],+b[2]-1,+b[3],+b[4],+b[5],+(b[6]||0));
-        if(!isNaN(d3.getTime())) return d3;
-      }
-    }
-    dbg("WARN: unparseable date: "+JSON.stringify(t));
-    return null;
-  }
-
-  function pickArray(c){
-    if(!c) return [];
-    if(Array.isArray(c)) return c;
-    if(typeof c==="object"){
-      if(Array.isArray(c.Data))    return c.Data;
-      if(Array.isArray(c.data))    return c.data;
-      if(Array.isArray(c.Items))   return c.Items;
-      if(Array.isArray(c.Results)) return c.Results;
-    }
-    return [];
-  }
-
-  // ── COURT FILTER ────────────────────────────────────────────
-  function containsCourtN(rec, n){
-    n = Number(n)||1;
-    if(!rec) return false;
-    var visited = (typeof WeakSet!=="undefined") ? new WeakSet() : null;
-
-    function strMatchesN(s){
-      if(!s) return false;
-      s = String(s).toLowerCase();
-      if(s.indexOf("court")===-1) return false;
-      var exact = new RegExp("courts?\\s*#?\\s*"+n+"(?!\\d)","g");
-      if(exact.test(s)) return true;
-      var rg=/courts?\s*#?\s*(\d+)\s*[-–]\s*#?\s*(\d+)/g, m;
-      while((m=rg.exec(s))!==null){
-        var a=+m[1],b=+m[2];
-        if(n>=Math.min(a,b)&&n<=Math.max(a,b)) return true;
-      }
-      var lg=/courts?\s*#?\s*(\d+)(?!\d)/g, lm;
-      while((lm=lg.exec(s))!==null){
-        if(parseInt(lm[1],10)===n) return true;
-      }
-      return false;
-    }
-
-    function courtRelatedKey(k){
-      if(!k) return false;
-      var s=String(k).toLowerCase();
-      return s==="courtnumber"||s==="courtno"||s==="courtid"||
-             s==="court_id"||s==="court_number"||s==="resourceid"||
-             s==="resource_id"||s==="facilitycourtid";
-    }
-
-    function scan(val, key){
-      if(val==null) return false;
-      var t=typeof val;
-      if(t==="number") return courtRelatedKey(key)&&(val===n);
-      if(t==="string") return strMatchesN(val);
-      if(Array.isArray(val)){
-        for(var i=0;i<val.length;i++) if(scan(val[i],key)) return true;
-        return false;
-      }
-      if(t==="object"){
-        if(visited&&visited.has(val)) return false;
-        if(visited) visited.add(val);
-        for(var k in val){
-          if(!Object.prototype.hasOwnProperty.call(val,k)) continue;
-          if(scan(val[k],k)) return true;
-        }
-      }
-      return false;
-    }
-
-    return scan(rec,"");
-  }
-
-  function isExcludedByName(name){
-    if(!name||!EXCLUDE_EVENT_NAMES.length) return false;
-    var nl=String(name).toLowerCase();
-    for(var i=0;i<EXCLUDE_EVENT_NAMES.length;i++)
-      if(nl.indexOf(EXCLUDE_EVENT_NAMES[i].toLowerCase())>=0) return true;
-    return false;
-  }
-
-  // ── CLOCK ────────────────────────────────────────────
-  function tickClock(){
-    document.getElementById("clock").textContent = toLocalNY(new Date());
-    var now=new Date();
-    var delay=1000-now.getMilliseconds();
-    setTimeout(tickClock, delay<250?250:delay);
-  }
-
-  // ── HTTP ────────────────────────────────────────────
-  function xhrJSON(url, headers, ms, cb){
-    try{
-      var x=new XMLHttpRequest();
-      x.open("GET",url,true); x.timeout=ms||8000;
-      if(headers) for(var k in headers) if(headers.hasOwnProperty(k)) x.setRequestHeader(k,headers[k]);
-      x.onreadystatechange=function(){
-        if(x.readyState===4){
-          if(x.status>=200&&x.status<300){
-            var d=null; try{d=JSON.parse(x.responseText);}catch(e){}
-            cb(null,d,x.status);
-          } else cb(new Error("HTTP "+x.status),null,x.status);
-        }
-      };
-      x.ontimeout=function(){ cb(new Error("timeout"),null,0); };
-      x.onerror  =function(){ cb(new Error("network"),null,0); };
-      x.send();
-    }catch(e){ cb(e,null,0); }
-  }
-
-  function apiHeaders(){
-    var h={};
-    if(API_KEY&&API_KEY.trim()) h["X-API-Key"]=API_KEY.trim();
-    return h;
-  }
-
-  // ── UI HELPERS ────────────────────────────────────────────
-  function darkenHex(hex,pct){
-    var h=String(hex||"").replace("#","");
-    if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
-    if(h.length!==6) return hex;
-    var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);
-    r=Math.max(0,Math.floor(r*(1-pct)));
-    g=Math.max(0,Math.floor(g*(1-pct)));
-    b=Math.max(0,Math.floor(b*(1-pct)));
-    return "#"+("0"+r.toString(16)).slice(-2)+("0"+g.toString(16)).slice(-2)+("0"+b.toString(16)).slice(-2);
-  }
+  function darkenHex(hex,pct){ var h=String(hex||"").replace("#",""); if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2]; if(h.length!==6) return hex; var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16); r=Math.max(0,Math.floor(r*(1-pct))); g=Math.max(0,Math.floor(g*(1-pct))); b=Math.max(0,Math.floor(b*(1-pct))); return "#"+("0"+r.toString(16)).slice(-2)+("0"+g.toString(16)).slice(-2)+("0"+b.toString(16)).slice(-2); }
 
   function setBarMode(mode){
     var bar=document.getElementById("bar"), cn=document.getElementById("cn"), cd=document.getElementById("cd");
-    // Preserve sub-state classes on the countdown (minutes-only / warn / danger) across mode changes
-    var preserve = [];
-    if(cd){
-      if(cd.classList.contains("minutes-only")) preserve.push("minutes-only");
-      if(cd.classList.contains("warn"))         preserve.push("warn");
-      if(cd.classList.contains("danger"))       preserve.push("danger");
-    }
-    if(mode==="expiring"){
-      bar.className="bar expiring";
-      cn.className="sec alert";
-      cd.className="sec urgent";
-      return;
-    }
-    if(mode==="red"){
-      bar.className="bar red";
-      cn.className="sec alert";
-      cd.className="sec urgent";
-      return;
-    }
-    cn.className="sec";
-    cd.className = "sec" + (preserve.length ? " " + preserve.join(" ") : "");
+    if(mode==="expiring"){ bar.className="bar expiring"; cn.className="sec alert"; cd.className="sec urgent"; return; }
+    if(mode==="red"){ bar.className="bar red"; cn.className="sec alert"; cd.className="sec urgent"; return; }
+    cn.className="sec"; cd.className="sec";
     if(mode==="skill"){
       var base=currentLevelBg||"#22335d";
       bar.style.setProperty("--bar-skill-b",base);
@@ -910,7 +715,6 @@
     bar.className="bar";
   }
 
-  // Returns true if the color is light enough to need dark text
   function isLightColor(hex){
     var h = String(hex||"").replace("#","");
     if(h.length===3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
@@ -922,147 +726,48 @@
     return luminance > 140;
   }
 
-  function resetExpiredVisuals(){
-    var o=document.getElementById("cdv"); o.className="val";
-    var l=document.getElementById("cdlbl");
-    l.textContent=(cdMode==="next")?"Time Until":"Time Left";
-  }
+  function resetExpiredVisuals(){ var o=document.getElementById("cdv"); o.className="val"; var l=document.getElementById("cdlbl"); l.textContent=(cdMode==="next")?"Time Until":"Time Left"; }
+  function showErrBadge(show,msg){ var el=document.getElementById("errBadge"); if(!el) return; if(show){ el.textContent=msg||"API issue — backing off…"; } else { el.style.display="none"; } }
 
-  function showErrBadge(show,msg){
-    var el=document.getElementById("errBadge"); if(!el) return;
-    if(show){ el.textContent=msg||"API issue — backing off…"; el.style.display="block"; }
-    else      el.style.display="none";
-  }
-
-  // Direct content update — no animation (matches original behavior)
   function swapContent(el, newHTML){
     if(!el) return;
     if(el.innerHTML === newHTML) return;
     el.innerHTML = newHTML;
   }
 
-
-  function setBookAtFrontDesk(){
-    if(cdTimer){ clearTimeout(cdTimer); cdTimer=null; }
-    cdMode="book"; cdTarget=null;
-    currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false;
-
-    var curEl=document.getElementById("curv");
-    var nxtEl=document.getElementById("nxtv");
-    var out=document.getElementById("cdv");
-    var lbl=document.getElementById("cdlbl");
-    var cdEl=document.getElementById("cd");
-
-    if(cdEl){ cdEl.className="sec urgent"; }
-    if(curEl){
-      curEl.style.color="#ffffff";
-      swapContent(curEl,"<span class='book-front-desk-text'>Book at Front desk</span>");
-    }
-    if(nxtEl){
-      nxtEl.style.color="rgba(255,255,255,0.85)";
-      swapContent(nxtEl,"No upcoming event");
-    }
-    if(lbl) lbl.textContent="Available";
-    if(out){ out.className="val"; out.textContent="OPEN"; }
-    setBarMode("red");
-  }
-
-  // ── COUNTDOWN ────────────────────────────────────────────
-  function startCountdown(targetMs, mode){
-    cdTarget=targetMs; cdMode=mode||"none";
-    if(cdTimer){ clearTimeout(cdTimer); cdTimer=null; }
-
+  function startCountdown(targetMs,mode){ cdTarget=targetMs; cdMode=mode||"none"; if(cdTimer){ clearTimeout(cdTimer); cdTimer=null; }
     function tick(){
-      var out=document.getElementById("cdv"), lbl=document.getElementById("cdlbl");
-
-      if(!cdTarget){
-        if(cdMode==="book"){
-          setBookAtFrontDesk();
-          return;
-        }
-        out.className="val"; out.textContent="--";
-        lbl.textContent="Time Left";
-        setBarMode(currentIsSkill?"skill":"normal");
-        cdTimer=setTimeout(tick,1000); return;
-      }
-
+      var out=document.getElementById("cdv"),lbl=document.getElementById("cdlbl");
+      if(!cdTarget){ out.className="val"; out.textContent="--"; lbl.textContent="Time Left"; setBarMode(currentIsSkill?"skill":"normal"); cdTimer=setTimeout(tick,1000); return; }
       var diff=cdTarget-Date.now();
-
       if(diff>0){
         if(cdMode==="cur"&&diff<=60000){ setBarMode("expiring"); }
         else { setBarMode(currentIsSkill?"skill":"normal"); }
-
         if(out.className.indexOf("expired-msg")!==-1) out.className="val";
-
         var totalMin=Math.floor(diff/60000);
-        if(diff<=60000)       out.textContent=Math.floor(diff/1000)+"s";
+        if(diff<=60000) out.textContent=Math.floor(diff/1000)+"s";
         else if(totalMin>=60) out.textContent=Math.floor(totalMin/60)+"h "+(totalMin%60)+"m";
-        else                  out.textContent=totalMin+"m";
-
-        // Apply size + color states based on remaining time (only during current event)
-        var cdEl = document.getElementById("cd");
-        if(cdEl && cdMode==="cur" && diff > 60000){
-          // Reset the urgent class (which only applies <60s); manage our own
-          cdEl.classList.remove("urgent");
-          // Big font when minutes-only (sub 60 minutes)
-          if(totalMin < 60) cdEl.classList.add("minutes-only");
-          else              cdEl.classList.remove("minutes-only");
-          // Yellow at 10 minutes or less
-          if(totalMin <= 10 && totalMin > 5) {
-            cdEl.classList.add("warn");
-            cdEl.classList.remove("danger");
-          } else if(totalMin <= 5) {
-            cdEl.classList.add("danger");
-            cdEl.classList.remove("warn");
-          } else {
-            cdEl.classList.remove("warn");
-            cdEl.classList.remove("danger");
-          }
-        } else if(cdEl && cdMode!=="cur"){
-          // Not the current event countdown — clear state classes
-          cdEl.classList.remove("minutes-only");
-          cdEl.classList.remove("warn");
-          cdEl.classList.remove("danger");
-        }
-
+        else out.textContent=totalMin+"m";
         lbl.textContent=(cdMode==="cur")?"Time Left":"Time Until";
         cdTimer=setTimeout(tick,1000);
-
       } else {
-        var cdElExpire = document.getElementById("cd");
-        if(cdElExpire){
-          cdElExpire.classList.remove("minutes-only");
-          cdElExpire.classList.remove("warn");
-          cdElExpire.classList.remove("danger");
-        }
         if(cdMode==="cur"){
-          if(!nxtStart){
-            lastGood=null;
-            setBookAtFrontDesk();
-            try{ refresh(true); }catch(e){}
-            return;
-          }
-          setBarMode("red");
-          lbl.textContent="";
+          setBarMode("red"); lbl.textContent="";
           out.className="val expired-msg"; out.innerHTML="<span>TIME</span><span>EXPIRED</span>";
           var curEl=document.getElementById("curv");
           curEl.innerHTML=lastCurName?"Time expired — "+lastCurName:"Time expired";
           setTimeout(function(){
             setBarMode(currentIsSkill?"skill":"normal");
             resetExpiredVisuals();
-            cdMode="next"; cdTarget=nxtStart; tick();
-          }, 30000);
-
+            if(nxtStart){ cdMode="next"; cdTarget=nxtStart; tick(); }
+            else { cdMode="none"; cdTarget=null; lastGood=null; refresh(true); }
+          },30000);
         } else if(cdMode==="next"){
-          cdTarget=null; cdMode="none";
-          out.className="val"; out.textContent="--";
-          lbl.textContent="Time Left";
-          setBarMode("normal");
+          cdTarget=null; cdMode="none"; out.className="val"; out.textContent="--";
+          lbl.textContent="Time Left"; setBarMode("normal");
           try{ refresh(true); }catch(e){}
-
         } else {
-          setBarMode("normal");
-          lbl.textContent="Time Until";
+          setBarMode("normal"); lbl.textContent="Time Until";
           out.className="val"; out.textContent="--";
           cdTarget=null; cdTimer=setTimeout(tick,2000);
         }
@@ -1071,58 +776,18 @@
     tick();
   }
 
-  function fmtTime(d){
-    return "<div class='meta'>"+toLocalNY(d.start)+" – "+toLocalNY(d.end)+"</div>";
-  }
+  function fmtTime(d){ return "<div class='meta'>"+toLocalNY(d.start)+" – "+toLocalNY(d.end)+"</div>"; }
 
-  // ── LEVEL COLOURS ────────────────────────────────────────────
-  function getLevelInfo(title){
-    var t=(title||""), tl=t.toLowerCase();
-    var tn=tl.replace(/\s+/g,"").replace(/[–—]/g,"-");
-    var info={bubbleColor:null,label:"",overlayBg:"#0c0c0c"};
-    if(tn.indexOf("4.5+")>=0||tn.indexOf("4.5-")>=0||tn.indexOf("5.0")>=0)
-      { info.bubbleColor="#cfd829"; info.label="4.5+";     info.overlayBg="#cfd829"; }
-    else if(tn.indexOf("4.0-4.4")>=0||tn.indexOf("4.0-4.49")>=0||tn.indexOf("4.0-4.5")>=0||tn.indexOf("4.0-4")>=0)
-      { info.bubbleColor="#f47855"; info.label="4.0–4.49"; info.overlayBg="#f47855"; }
-    else if(tn.indexOf("3.5-3.9")>=0||tn.indexOf("3.5-3.99")>=0||tn.indexOf("3.5+")>=0)
-      { info.bubbleColor="#ee3c85"; info.label="3.5–3.99"; info.overlayBg="#6d28d9"; }
-    else if(tn.indexOf("3.0-3.4")>=0||tn.indexOf("3.0-3.49")>=0)
-      { info.bubbleColor="#22c55e"; info.label="3.0–3.49"; info.overlayBg="#15803d"; }
-    else if(tn.indexOf("2.0-2.9")>=0||tn.indexOf("2.0-2.99")>=0)
-      { info.bubbleColor="#38bdf8"; info.label="2.0–2.99"; info.overlayBg="#0ea5e9"; }
-    else if(tl.indexOf("advanced")>=0)
-      { info.bubbleColor="#cfd829"; info.label="4.5+";     info.overlayBg="#cfd829"; }
-    else if(tl.indexOf("intermediate+")>=0)
-      { info.bubbleColor="#ee3c85"; info.label="3.5–3.99"; info.overlayBg="#6d28d9"; }
-    else if(tl.indexOf("intermediate")>=0)
-      { info.bubbleColor="#48b749"; info.label="3.0–3.49"; info.overlayBg="#15803d"; }
-    else if(tl.indexOf("beginner")>=0)
-      { info.bubbleColor="#38bdf8"; info.label="2.0–2.99"; info.overlayBg="#0ea5e9"; }
-    return info;
-  }
+  function getLevelInfo(title){ var t=(title||""),tl=t.toLowerCase(),tn=tl.replace(/\s+/g,"").replace(/[–—]/g,"-"); var info={bubbleColor:null,label:"",overlayBg:"#0c0c0c"}; if(tn.indexOf("4.5+")>=0||tn.indexOf("4.5-")>=0||tn.indexOf("5.0")>=0){ info.bubbleColor="#cfd829"; info.label="4.5+"; info.overlayBg="#cfd829"; } else if(tn.indexOf("4.0-4.4")>=0||tn.indexOf("4.0-4.49")>=0||tn.indexOf("4.0-4.5")>=0||tn.indexOf("4.0-4")>=0){ info.bubbleColor="#f47855"; info.label="4.0–4.49"; info.overlayBg="#f47855"; } else if(tn.indexOf("3.5-3.9")>=0||tn.indexOf("3.5-3.99")>=0||tn.indexOf("3.5+")>=0){ info.bubbleColor="#ee3c85"; info.label="3.5–3.99"; info.overlayBg="#6d28d9"; } else if(tn.indexOf("3.0-3.4")>=0||tn.indexOf("3.0-3.49")>=0){ info.bubbleColor="#22c55e"; info.label="3.0–3.49"; info.overlayBg="#15803d"; } else if(tn.indexOf("2.0-2.9")>=0||tn.indexOf("2.0-2.99")>=0){ info.bubbleColor="#38bdf8"; info.label="2.0–2.99"; info.overlayBg="#0ea5e9"; } else if(tl.indexOf("advanced")>=0){ info.bubbleColor="#cfd829"; info.label="4.5+"; info.overlayBg="#cfd829"; } else if(tl.indexOf("intermediate+")>=0){ info.bubbleColor="#ee3c85"; info.label="3.5–3.99"; info.overlayBg="#6d28d9"; } else if(tl.indexOf("intermediate")>=0){ info.bubbleColor="#48b749"; info.label="3.0–3.49"; info.overlayBg="#15803d"; } else if(tl.indexOf("beginner")>=0){ info.bubbleColor="#38bdf8"; info.label="2.0–2.99"; info.overlayBg="#0ea5e9"; } return info; }
 
-  function isCancelled(x){
-    if(!x||typeof x!=="object") return false;
-    if(x.IsCanceled===true||x.IsCancelled===true||x.Cancelled===true) return true;
-    if(x.IsActive===false||x.Active===false) return true;
-    var s="";
-    if(typeof x.Status==="string")             s+=" "+x.Status;
-    if(typeof x.EventStatus==="string")        s+=" "+x.EventStatus;
-    if(typeof x.RegistrationStatus==="string") s+=" "+x.RegistrationStatus;
-    return s.toLowerCase().indexOf("cancel")>=0;
-  }
+  function isCancelled(x){ if(!x||typeof x!=="object") return false; if(x.IsCanceled===true||x.IsCancelled===true||x.Cancelled===true) return true; if(x.IsActive===false||x.Active===false) return true; var s=""; if(typeof x.Status==="string") s+=" "+x.Status; if(typeof x.EventStatus==="string") s+=" "+x.EventStatus; if(typeof x.RegistrationStatus==="string") s+=" "+x.RegistrationStatus; return s.toLowerCase().indexOf("cancel")>=0; }
 
-  // ── RENDER ────────────────────────────────────────────────
-  function render(cur, nxt){
+  function render(cur,nxt){
     var curEl=document.getElementById("curv"), nxtEl=document.getElementById("nxtv");
-
     if(cur){
       lastCurName=cur.name+fmtTime(cur);
       var lv=getLevelInfo(cur.name||"");
-      currentLevelLabel=lv.label;
-      currentLevelBg=lv.overlayBg;
-      currentLevelBubble=lv.bubbleColor;
-      currentIsSkill=!!lv.bubbleColor;
+      currentLevelLabel=lv.label; currentLevelBg=lv.overlayBg; currentLevelBubble=lv.bubbleColor; currentIsSkill=!!lv.bubbleColor;
       if(curEl.style.color !== "rgb(255, 255, 255)") curEl.style.color="#ffffff";
       swapContent(curEl, cur.name+fmtTime(cur));
       setBarMode(currentIsSkill?"skill":"normal");
@@ -1134,14 +799,12 @@
       swapContent(curEl, "No current event");
       setBarMode("normal");
       if(nxt) startCountdown(nxt.start.getTime(),"next");
-      else    setBookAtFrontDesk();
+      else    startCountdown(null,"none");
     }
-
     var nxtDimColor = "rgba(255, 255, 255, 0.6)";
     if(nxt){
       var nxtLv = getLevelInfo(nxt.name||"");
-      var pill = nxtLv.bubbleColor ?
-        "<span class='skill-pill' style='background:"+nxtLv.bubbleColor+";color:"+nxtLv.bubbleColor+"'></span>" : "";
+      var pill = nxtLv.bubbleColor ? "<span class='skill-pill' style='background:"+nxtLv.bubbleColor+";color:"+nxtLv.bubbleColor+"'></span>" : "";
       if(nxtEl.style.color !== nxtDimColor) nxtEl.style.color=nxtDimColor;
       swapContent(nxtEl, pill+nxt.name+fmtTime(nxt));
     } else {
@@ -1150,145 +813,22 @@
     }
   }
 
-  // ── NORMALISE DATA ────────────────────────────────────────────
-  function normalizeEvent(x){
-    if(isCancelled(x)) return null;
-    var nm=x.EventName||x.Name||x.Title||x.name||x.title||"Event";
-    var s=parseTimeAny(x.StartDateTime||x.StartTime||x.Start||x.startDateTime||x.start);
-    var e=parseTimeAny(x.EndDateTime  ||x.EndTime  ||x.End  ||x.endDateTime  ||x.end);
-    if(!s||!e){ dbg("DROP event (dates): "+nm); return null; }
-    return {kind:"event",name:nm,start:s,end:e,raw:x};
-  }
+  function normalizeEvent(x){ if(isCancelled(x)) return null; var nm=x.EventName||x.Name||x.Title||x.name||x.title||"Event"; var s=parseTimeAny(x.StartDateTime||x.StartTime||x.Start||x.startDateTime||x.start); var e=parseTimeAny(x.EndDateTime||x.EndTime||x.End||x.endDateTime||x.end); if(!s||!e) return null; return {kind:"event",name:nm,start:s,end:e,raw:x}; }
+  function shortName(p){ var fn=(p.FirstName||p.firstName||"").trim(),ln=(p.LastName||p.lastName||"").trim(),i=fn?fn.charAt(0).toUpperCase()+".":""; return (i&&ln)?(i+" "+ln):(i||ln||""); }
+  function normalizeResv(x){ var s=parseTimeAny(x.StartTime||x.StartDateTime||x.Start||x.startTime||x.start); var e=parseTimeAny(x.EndTime||x.EndDateTime||x.End||x.endTime||x.end); if(!s||!e) return null; var name=""; if(Array.isArray(x.Players)&&x.Players.length){ var arr=[]; for(var i=0;i<x.Players.length;i++) arr.push(shortName(x.Players[i]||{})); name=arr.join(", "); } if(!name&&x.ReservationTypeName) name=x.ReservationTypeName; if(!name) name="Reserved"; return {kind:"res",name:name,start:s,end:e,raw:x}; }
 
-  function shortName(p){
-    var fn=(p.FirstName||p.firstName||"").trim();
-    var ln=(p.LastName ||p.lastName ||"").trim();
-    var i=fn?fn.charAt(0).toUpperCase()+".":"";
-    return (i&&ln)?(i+" "+ln):(i||ln||"");
-  }
+  function computeAndRender(){ var ev=[],rs=[],i; for(i=0;i<cacheEv.length;i++){ var a=normalizeEvent(cacheEv[i]); if(a) ev.push(a); } for(i=0;i<cacheRes.length;i++){ var b=normalizeResv(cacheRes[i]); if(b) rs.push(b); } var evC=[],rsC=[],evFallback=[]; for(i=0;i<ev.length;i++){ if(isExcludedByName(ev[i].name)) continue; var rc=ev[i].raw.Courts; if(Array.isArray(rc)&&rc.length===0){ evFallback.push(ev[i]); } else if(containsCourtN(ev[i].raw,COURT_NO)){ evC.push(ev[i]); } } for(i=0;i<rs.length;i++){ if(isExcludedByName(rs[i].name)) continue; if(containsCourtN(rs[i].raw,COURT_NO)) rsC.push(rs[i]); } var primary=rsC.concat(evC); primary.sort(function(a,b){ return a.start-b.start; }); evFallback.sort(function(a,b){ return a.start-b.start; }); var now=new Date(),cur=null,nxt=null,it,i2; for(i2=0;i2<primary.length;i2++){ it=primary[i2]; if(now>=it.start&&now<=it.end){ if(!cur){ cur=it; } else if(it.end>cur.end){ cur=it; } else if(it.end.getTime()===cur.end.getTime()&&it.kind==="res"&&cur.kind==="event"){ cur=it; } } if(!nxt&&now<it.start) nxt=it; } if(!cur){ for(i2=0;i2<evFallback.length;i2++){ it=evFallback[i2]; if(now>=it.start&&now<=it.end){ cur=it; break; } } } if(!nxt){ for(i2=0;i2<evFallback.length;i2++){ it=evFallback[i2]; if(now<it.start){ nxt=it; break; } } } nxtStart=nxt?nxt.start.getTime():null; if(cur||nxt) lastGood={cur:cur,nxt:nxt}; if(cur||nxt) render(cur,nxt); else if(lastGood) render(lastGood.cur,lastGood.nxt); else render(null,null); }
 
-  function normalizeResv(x){
-    var s=parseTimeAny(x.StartTime||x.StartDateTime||x.Start||x.startTime||x.start);
-    var e=parseTimeAny(x.EndTime  ||x.EndDateTime  ||x.End  ||x.endTime  ||x.end);
-    if(!s||!e){ dbg("DROP resv (dates): "+(x.Id||"?")); return null; }
-    var name="";
-    if(Array.isArray(x.Players)&&x.Players.length){
-      var arr=[]; for(var i=0;i<x.Players.length;i++) arr.push(shortName(x.Players[i]||{}));
-      name=arr.join(", ");
-    }
-    if(!name&&x.ReservationTypeName) name=x.ReservationTypeName;
-    if(!name) name="Reserved";
-    return {kind:"res",name:name,start:s,end:e,raw:x};
-  }
+  function scheduleNext(){ if(refreshTimer) clearTimeout(refreshTimer); refreshTimer=setTimeout(function(){ refresh(false); },refreshDelayMs); }
+  function refresh(){ var url=PROXY_BASE+"?court="+COURT_NO; xhrJSON(url,apiHeaders(),8000,function(err,data,status){ if(!err&&data){ showErrBadge(false); refreshDelayMs=BASE_REFRESH_MS; cacheEv=pickArray(data.events); cacheRes=pickArray(data.reservations); computeAndRender(); } else { var msg="API issue — backing off…"; if(status===429) msg="Rate limited — backing off…"; if(status===403) msg="Forbidden — check API key"; showErrBadge(true,msg); refreshDelayMs=Math.min(refreshDelayMs*2,MAX_BACKOFF_MS); try{ computeAndRender(); }catch(e){} } scheduleNext(); }); }
 
-  // ── COMPUTE & RENDER ────────────────────────────────────────
-  function computeAndRender(){
-    var ev=[],rs=[],i;
-    for(i=0;i<cacheEv.length; i++){ var a=normalizeEvent(cacheEv[i]);  if(a) ev.push(a); }
-    for(i=0;i<cacheRes.length;i++){ var b=normalizeResv(cacheRes[i]);   if(b) rs.push(b); }
-
-    var evC=[],rsC=[],evFallback=[];
-
-    for(i=0;i<ev.length;i++){
-      if(isExcludedByName(ev[i].name)){ dbg("EXCL event: "+ev[i].name); continue; }
-      var rc=ev[i].raw.Courts;
-      if(Array.isArray(rc)&&rc.length===0){
-        evFallback.push(ev[i]); dbg("FALLBACK pool: "+ev[i].name);
-      } else if(containsCourtN(ev[i].raw,COURT_NO)){
-        evC.push(ev[i]); dbg("EVENT match: "+ev[i].name);
-      }
-    }
-    for(i=0;i<rs.length;i++){
-      if(isExcludedByName(rs[i].name)){ dbg("EXCL resv: "+rs[i].name); continue; }
-      if(containsCourtN(rs[i].raw,COURT_NO)){ rsC.push(rs[i]); dbg("RESV match: "+rs[i].name); }
-    }
-
-    var primary=rsC.concat(evC);
-    primary.sort(function(a,b){ return a.start-b.start; });
-    evFallback.sort(function(a,b){ return a.start-b.start; });
-
-    var now=new Date(), cur=null, nxt=null, it, i2;
-
-    for(i2=0;i2<primary.length;i2++){
-      it=primary[i2];
-      if(now>=it.start&&now<=it.end){
-        if(!cur){ cur=it; }
-        else if(it.end>cur.end){ cur=it; }
-        else if(it.end.getTime()===cur.end.getTime()&&it.kind==="res"&&cur.kind==="event"){ cur=it; }
-      }
-      if(!nxt&&now<it.start) nxt=it;
-    }
-
-    if(!cur){
-      for(i2=0;i2<evFallback.length;i2++){
-        it=evFallback[i2];
-        if(now>=it.start&&now<=it.end){ cur=it; dbg("FALLBACK cur: "+it.name); break; }
-      }
-    }
-    if(!nxt){
-      for(i2=0;i2<evFallback.length;i2++){
-        it=evFallback[i2];
-        if(now<it.start){ nxt=it; dbg("FALLBACK nxt: "+it.name); break; }
-      }
-    }
-
-    nxtStart=nxt?nxt.start.getTime():null;
-    if(cur||nxt) lastGood={cur:cur,nxt:nxt};
-
-    if(cur||nxt)    render(cur,nxt);
-    else              render(null,null);
-
-    dbg("cur="+(cur?cur.name:"none")+" nxt="+(nxt?nxt.name:"none"));
-  }
-
-  // ── REFRESH LOOP ────────────────────────────────────────
-  function scheduleNext(){
-    if(refreshTimer) clearTimeout(refreshTimer);
-    refreshTimer=setTimeout(function(){ refresh(false); }, refreshDelayMs);
-  }
-
-  function refresh(){
-    var url=PROXY_BASE+"?court="+COURT_NO;
-    dbg("FETCH "+url);
-    xhrJSON(url, apiHeaders(), 8000, function(err,data,status){
-      if(!err&&data){
-        showErrBadge(false);
-        refreshDelayMs=BASE_REFRESH_MS;
-        if(SHOW_DEBUG){
-          var e0=pickArray(data.events)[0], r0=pickArray(data.reservations)[0];
-          if(e0) dbg("event keys: "+Object.keys(e0).join(","));
-          if(r0) dbg("resv keys: " +Object.keys(r0).join(","));
-        }
-        cacheEv =pickArray(data.events);
-        cacheRes=pickArray(data.reservations);
-        computeAndRender();
-      } else {
-        var msg="API issue — backing off…";
-        if(status===429) msg="Rate limited — backing off…";
-        if(status===403) msg="Forbidden — check API key";
-        dbg("ERR "+status);
-        showErrBadge(true,msg);
-        refreshDelayMs=Math.min(refreshDelayMs*2,MAX_BACKOFF_MS);
-        try{ computeAndRender(); }catch(e){}
-      }
-      scheduleNext();
-    });
-  }
-
-  // ── EVENT OVERLAY ────────────────────────────────────────
-  var infoOverlay  =document.getElementById("infoOverlay");
-  var overlayBodyEl=document.getElementById("overlayBody");
-  var overlayBoxEl =document.getElementById("overlayBox");
-  var overlayLvlEl =document.getElementById("overlayLevel");
-
+  var infoOverlay=document.getElementById("infoOverlay"),overlayBodyEl=document.getElementById("overlayBody"),overlayBoxEl=document.getElementById("overlayBox"),overlayLvlEl=document.getElementById("overlayLevel");
   function applyOverlayStyles(){
     if(!overlayBoxEl||!overlayLvlEl) return;
     if(currentLevelLabel){
       overlayLvlEl.style.display="inline-block";
       overlayLvlEl.textContent=currentLevelLabel;
-      // Make the whole overlay box the skill color
       overlayBoxEl.style.background = currentLevelBg || "#0c0c0c";
-      // Detect if light skill color — use dark text; otherwise keep white
       var useDark = isLightColor(currentLevelBg || "#0c0c0c");
       var textColor = useDark ? "#000" : "#fff";
       overlayLvlEl.style.color = textColor;
@@ -1306,273 +846,43 @@
       overlayBoxEl.style.border = "";
     }
   }
+  function isInLastMinuteOfEvent(){ if(!cdTarget||cdMode!=="cur") return false; var diff=cdTarget-Date.now(); return diff>0&&diff<=BDAY_END_BUFFER_MS; }
+  function showOverlay(){ if(isInLastMinuteOfEvent()) return; if(bdayActive) return; if(!infoOverlay) return; if(!document.getElementById("scorebugView").classList.contains("active")) return; var curEl=document.getElementById("curv"); if(curEl&&overlayBodyEl) overlayBodyEl.innerHTML=curEl.innerHTML||curEl.textContent||""; applyOverlayStyles(); infoOverlay.classList.add("active"); setTimeout(function(){ infoOverlay.classList.remove("active"); },10000); }
+  function startOverlayLoop(){ if(!infoOverlay) return; var now=new Date(); var ms=(60-now.getSeconds())*1000-now.getMilliseconds(); if(ms<100) ms=100; setTimeout(function(){ showOverlay(); setInterval(showOverlay,60000); },ms+2000); }
 
-  function isInLastMinuteOfEvent(){
-    if(!cdTarget||cdMode!=="cur") return false;
-    var diff=cdTarget-Date.now();
-    return diff>0 && diff<=BDAY_END_BUFFER_MS;
-  }
+  document.getElementById("cno").textContent=String(COURT_NO);
+  tickClock(); refresh(); scheduleNext(); startOverlayLoop();
 
-  function showOverlay(){
-    if(isInLastMinuteOfEvent()) return;
-    if(bdayActive) return;
-    if(!infoOverlay) return;
-    // Skip if this minute is a birthday-popup minute (every 15 min: :00, :15, :30, :45)
-    // — prevents overlap with birthday overlay
-    var mNow = new Date().getMinutes();
-    if(mNow % 15 === 0) return;
-    var curEl=document.getElementById("curv");
-    if(curEl&&overlayBodyEl) overlayBodyEl.innerHTML=curEl.innerHTML||curEl.textContent||"";
-    applyOverlayStyles();
-    infoOverlay.classList.add("active");
-    setTimeout(function(){ infoOverlay.classList.remove("active"); },10000);
-  }
-
-  function startOverlayLoop(){
-    if(!infoOverlay) return;
-    var now=new Date();
-    var ms=(60-now.getSeconds())*1000-now.getMilliseconds();
-    if(ms<100) ms=100;
-    setTimeout(function(){ showOverlay(); setInterval(showOverlay,60000); }, ms + 2000);
-  }
-
-  // ── BIRTHDAY OVERLAY ────────────────────────────────────────
+  // ── BIRTHDAY OVERLAY ──────────────────────────────────────
+  var BIRTHDAY_NAMES    = [];
+  var BDAY_READER_URL   = 'https://levelup-birthday-reader-led-screens.s-jackson.workers.dev/';
+  var BDAY_INTERVAL_MS  = 15 * 60 * 1000;
+  var BDAY_DURATION_MS  = 10 * 1000;
+  var BDAY_END_BUFFER_MS = 60 * 1000;
+  var BDAY_FETCH_MS     = 15 * 60 * 1000;
   var bdayOverlay = document.getElementById("bdayOverlay");
   var bdayNamesEl = document.getElementById("bdayNames");
   var bdayActive  = false;
+  var BALLOON_COLORS = ["#3CC440","#7EE882","#1E2B6E","#c084fc","#ff9de2","#fbbf24","#60a5fa","#a78bfa"];
 
-  // Brand-aligned palette: green, navy-pink mix
-  var BALLOON_COLORS = [
-    "#3CC440","#7EE882","#1E2B6E","#c084fc",
-    "#ff9de2","#fbbf24","#60a5fa","#a78bfa"
-  ];
-
-  function spawnBalloons(){
-    var container = document.getElementById("balloonContainer");
-    if(!container) return;
-    container.innerHTML = "";
-    var count = 10;
-    for(var i=0; i<count; i++){
-      (function(idx){
-        setTimeout(function(){
-          var b = document.createElement("div");
-          b.className = "balloon";
-          var left = 8 + Math.random()*84;
-          var color = BALLOON_COLORS[Math.floor(Math.random()*BALLOON_COLORS.length)];
-          var sway = (Math.random()>0.5?1:-1)*(15+Math.random()*35)+"px";
-          var dur = (4.8+Math.random()*2.4).toFixed(1)+"s";
-          var delay = (Math.random()*1.5).toFixed(2)+"s";
-          b.style.left = left+"%";
-          b.style.background = color;
-          b.style.setProperty("--sway", sway);
-          b.style.animationDuration = dur;
-          b.style.animationDelay = delay;
-          container.appendChild(b);
-        }, idx * 150);
-      })(i);
-    }
-  }
-
-  function showBirthdayOverlay(){
-    if(!bdayOverlay || !BIRTHDAY_NAMES || BIRTHDAY_NAMES.length===0) return;
-    if(infoOverlay && infoOverlay.classList.contains("active")) return;
-    if(isInLastMinuteOfEvent()) return;
-    if(bdayActive) return;
-
-    var names = BIRTHDAY_NAMES;
-    var nameStr = "";
-    if(names.length===1) nameStr = names[0];
-    else if(names.length===2) nameStr = names[0]+" & "+names[1];
-    else nameStr = names.slice(0,-1).join(", ")+" & "+names[names.length-1];
-
-    if(bdayNamesEl) bdayNamesEl.textContent = nameStr;
-
-    spawnBalloons();
-    bdayActive = true;
-    bdayOverlay.classList.add("active");
-
-    setTimeout(function(){
-      bdayOverlay.classList.remove("active");
-      setTimeout(function(){ bdayActive = false; }, 700);
-    }, BDAY_DURATION_MS);
-  }
-
-  function fetchBirthdayNames(cb){
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', BDAY_READER_URL, true);
-    xhr.timeout = 5000;
-    xhr.onreadystatechange = function(){
-      if(xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 300){
-        try{
-          var data = JSON.parse(xhr.responseText);
-          BIRTHDAY_NAMES = Array.isArray(data.names) ? data.names : [];
-        }catch(e){ BIRTHDAY_NAMES = []; }
-        if(cb) cb();
-      }
-    };
-    xhr.ontimeout = xhr.onerror = function(){ BIRTHDAY_NAMES = []; if(cb) cb(); };
-    xhr.send();
-  }
-
-  function startBirthdayLoop(){
-    fetchBirthdayNames();
-    setInterval(fetchBirthdayNames, BDAY_FETCH_MS);
-    var now = new Date();
-    var totalSec = now.getMinutes()*60 + now.getSeconds();
-    var secsUntilNext = 900 - (totalSec % 900);
-    var msUntilNext = secsUntilNext*1000 - now.getMilliseconds();
-    if(msUntilNext < 500) msUntilNext += 900000;
-    setTimeout(function(){
-      showBirthdayOverlay();
-      setInterval(showBirthdayOverlay, BDAY_INTERVAL_MS);
-    }, msUntilNext);
-  }
-
-  // ── TEST PANEL ────────────────────────────────────────────
-  var testActive = false;
-  var testPanel = document.getElementById("testPanel");
-
-  function fakeNow(skillName){
-    testActive = true;
-    // Pause real refreshes while testing
-    if(refreshTimer){ clearTimeout(refreshTimer); refreshTimer = null; }
-    var now = new Date();
-    var fakeStart = new Date(now.getTime() - 30*60*1000); // started 30 min ago
-    var fakeEnd   = new Date(now.getTime() + 45*60*1000); // ends in 45 min
-    var fakeNxt = {
-      kind:"event",
-      name:"Open Play",
-      start:new Date(fakeEnd.getTime() + 15*60*1000),
-      end:  new Date(fakeEnd.getTime() + 90*60*1000),
-      raw:{}
-    };
-    var fakeCur = {
-      kind:"event",
-      name: skillName,
-      start: fakeStart,
-      end:   fakeEnd,
-      raw:{}
-    };
-    render(fakeCur, fakeNxt);
-  }
-
-  function fakeUrgent(){
-    testActive = true;
-    if(refreshTimer){ clearTimeout(refreshTimer); refreshTimer = null; }
-    var now = new Date();
-    var fakeCur = {
-      kind:"event",
-      name:"3.0–3.49 Intermediate",
-      start:new Date(now.getTime() - 60*60*1000),
-      end:  new Date(now.getTime() + 30*1000), // ends in 30 seconds — triggers red mode
-      raw:{}
-    };
-    var fakeNxt = {
-      kind:"event",
-      name:"Advanced Drills",
-      start:new Date(now.getTime() + 5*60*1000),
-      end:  new Date(now.getTime() + 65*60*1000),
-      raw:{}
-    };
-    render(fakeCur, fakeNxt);
-  }
-
-
-  function fakeBookAtFrontDesk(){
-    testActive = true;
-    if(refreshTimer){ clearTimeout(refreshTimer); refreshTimer = null; }
-    setBookAtFrontDesk();
-  }
-
-  // 10 minutes left — triggers yellow warn state
-  function fakeWarn(){
-    testActive = true;
-    if(refreshTimer){ clearTimeout(refreshTimer); refreshTimer = null; }
-    var now = new Date();
-    var fakeCur = {
-      kind:"event",
-      name:"3.0–3.49 Intermediate",
-      start:new Date(now.getTime() - 60*60*1000),
-      end:  new Date(now.getTime() + 9.5*60*1000), // 9.5 min left = yellow
-      raw:{}
-    };
-    var fakeNxt = {
-      kind:"event",
-      name:"Advanced Drills",
-      start:new Date(now.getTime() + 15*60*1000),
-      end:  new Date(now.getTime() + 75*60*1000),
-      raw:{}
-    };
-    render(fakeCur, fakeNxt);
-  }
-
-  // 5 minutes left — triggers red glowing danger state
-  function fakeDanger(){
-    testActive = true;
-    if(refreshTimer){ clearTimeout(refreshTimer); refreshTimer = null; }
-    var now = new Date();
-    var fakeCur = {
-      kind:"event",
-      name:"3.0–3.49 Intermediate",
-      start:new Date(now.getTime() - 60*60*1000),
-      end:  new Date(now.getTime() + 4.5*60*1000), // 4.5 min left = red glow
-      raw:{}
-    };
-    var fakeNxt = {
-      kind:"event",
-      name:"Advanced Drills",
-      start:new Date(now.getTime() + 10*60*1000),
-      end:  new Date(now.getTime() + 70*60*1000),
-      raw:{}
-    };
-    render(fakeCur, fakeNxt);
-  }
-
-  function exitTestMode(){
-    testActive = false;
-    refresh(); // immediately fetch real data
-  }
-
-  if(testPanel){
-    testPanel.addEventListener("click", function(e){
-      var t = e.target;
-      if(t.tagName !== "BUTTON") return;
-      var v = t.getAttribute("data-test");
-      if(v === "__overlay__"){ showOverlay(); return; }
-      if(v === "__bday__"){
-        if(!BIRTHDAY_NAMES.length) BIRTHDAY_NAMES = ["Test Member"];
-        showBirthdayOverlay();
-        return;
-      }
-      if(v === "__warn__"){ fakeWarn(); return; }
-      if(v === "__danger__"){ fakeDanger(); return; }
-      if(v === "__urgent__"){ fakeUrgent(); return; }
-      if(v === "__book__"){ fakeBookAtFrontDesk(); return; }
-      if(v === "__reset__"){ exitTestMode(); return; }
-      fakeNow(v);
-    });
-  }
-
-
-  document.addEventListener("keydown", function(e){
-    if(e.key === "t" || e.key === "T"){
-      if(testPanel) testPanel.classList.toggle("open");
-    }
-    if(e.key === "Escape"){
-      if(testPanel) testPanel.classList.remove("open");
-      if(testActive) exitTestMode();
-    }
-  });
-
-  // ── INIT ────────────────────────────────────────────
-  document.getElementById("cno").textContent=String(COURT_NO);
-  tickClock();
-  refresh();
-  scheduleNext();
-  startOverlayLoop();
+  function spawnBalloons(){ var container=document.getElementById("balloonContainer"); if(!container) return; container.innerHTML=""; var count=24; for(var i=0;i<count;i++){ (function(idx){ setTimeout(function(){ var b=document.createElement("div"); b.className="balloon"; var left=8+Math.random()*84; var color=BALLOON_COLORS[Math.floor(Math.random()*BALLOON_COLORS.length)]; var sway=(Math.random()>0.5?1:-1)*(15+Math.random()*35)+"px"; var dur=(3+Math.random()*1.5).toFixed(1)+"s"; var delay=(Math.random()*0.5).toFixed(2)+"s"; b.style.left=left+"%"; b.style.background=color; b.style.setProperty("--sway",sway); b.style.animationDuration=dur; b.style.animationDelay=delay; container.appendChild(b); },idx*40); })(i); } }
+  function showBirthdayOverlay(){ if(!bdayOverlay||!BIRTHDAY_NAMES||BIRTHDAY_NAMES.length===0) return; if(infoOverlay&&infoOverlay.classList.contains("active")) return; if(isInLastMinuteOfEvent()) return; if(bdayActive) return; if(!document.getElementById("scorebugView").classList.contains("active")) return; var names=BIRTHDAY_NAMES; var nameStr=""; if(names.length===1) nameStr=names[0]; else if(names.length===2) nameStr=names[0]+" & "+names[1]; else nameStr=names.slice(0,-1).join(", ")+" & "+names[names.length-1]; if(bdayNamesEl) bdayNamesEl.textContent=nameStr; spawnBalloons(); bdayActive=true; bdayOverlay.classList.add("active"); setTimeout(function(){ bdayOverlay.classList.remove("active"); setTimeout(function(){ bdayActive=false; },700); },BDAY_DURATION_MS); }
+  function fetchBirthdayNames(cb){ var xhr=new XMLHttpRequest(); xhr.open("GET",BDAY_READER_URL,true); xhr.timeout=5000; xhr.onreadystatechange=function(){ if(xhr.readyState===4&&xhr.status>=200&&xhr.status<300){ try{ var data=JSON.parse(xhr.responseText); BIRTHDAY_NAMES=Array.isArray(data.names)?data.names:[]; }catch(e){ BIRTHDAY_NAMES=[]; } if(cb) cb(); } }; xhr.ontimeout=xhr.onerror=function(){ BIRTHDAY_NAMES=[]; if(cb) cb(); }; xhr.send(); }
+  function startBirthdayLoop(){ fetchBirthdayNames(); setInterval(fetchBirthdayNames,BDAY_FETCH_MS); var now=new Date(); var totalSec=now.getMinutes()*60+now.getSeconds(); var secsUntilNext=900-(totalSec%900); var msUntilNext=secsUntilNext*1000-now.getMilliseconds(); if(msUntilNext<500) msUntilNext+=900000; setTimeout(function(){ showBirthdayOverlay(); setInterval(showBirthdayOverlay,BDAY_INTERVAL_MS); },msUntilNext); }
   startBirthdayLoop();
-
 })();
 </script>
+
+  <!-- Birthday overlay -->
+  <div id="bdayOverlay">
+    <div class="balloon-container" id="balloonContainer"></div>
+    <div class="bdayBox">
+      <span class="bdayEmoji">&#127874;</span>
+      <div class="bdayTitle">Happy Birthday</div>
+      <div class="bdayNames" id="bdayNames">Someone</div>
+      <div class="bdaySub">From everyone at LevelUp</div>
+      <img src="levelup-logo.png" alt="LevelUp" class="bdayLogo">
+    </div>
+  </div>
 </body>
 </html>
