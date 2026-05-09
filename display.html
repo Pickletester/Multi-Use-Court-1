@@ -90,6 +90,7 @@
       width: 100%;
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 58px;
+      transition: font-size 120ms ease;
       line-height: 0.95;
       font-weight: 800;
       text-align: center;
@@ -124,7 +125,7 @@
       position: relative;
       z-index: 1;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 250px;
+      font-size: 232px;
       font-weight: 400;
       color: #fff;
       text-align: center;
@@ -132,6 +133,15 @@
       letter-spacing: -0.01em;
       text-shadow: 0 4px 10px rgba(0,0,0,0.22);
       transform: translateY(4px);
+      transition: font-size 120ms ease;
+    }
+    .score-num.double-digit {
+      font-size: 208px;
+      letter-spacing: -0.03em;
+    }
+    .score-num.triple-digit {
+      font-size: 182px;
+      letter-spacing: -0.04em;
     }
 
     .info-panel {
@@ -911,9 +921,37 @@
     const v = snap.val() || 'scorebug';
     document.getElementById('scoreboardView').classList.toggle('active', v === 'scoreboard');
     document.getElementById('scorebugView').classList.toggle('active',   v === 'scorebug');
+    if (v === 'scoreboard') setTimeout(updateScoreboardSizing, 60);
   });
   const fieldMap = { p1:'disp-p1', p2:'disp-p2', p3:'disp-p3', p4:'disp-p4', score1:'disp-score1', score2:'disp-score2', event:'disp-event', games:'disp-games' };
   function flash(el) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); el.addEventListener('animationend', () => el.classList.remove('flash'), { once: true }); }
+  function fitTextToBox(el, maxPx, minPx) {
+    if (!el) return;
+    el.style.fontSize = maxPx + 'px';
+    let loops = 0;
+    while ((el.scrollWidth > el.clientWidth - 6 || el.scrollHeight > el.clientHeight - 6) && parseFloat(el.style.fontSize) > minPx && loops < 60) {
+      el.style.fontSize = (parseFloat(el.style.fontSize) - 1) + 'px';
+      loops++;
+    }
+  }
+  function updateNameSizing() {
+    ['disp-p1','disp-p2','disp-p3','disp-p4'].forEach((id) => fitTextToBox(document.getElementById(id), 58, 22));
+  }
+  function updateScoreSizing() {
+    ['disp-score1','disp-score2'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const raw = (el.textContent || '').trim();
+      const len = raw.replace(/[^0-9]/g, '').length || raw.length;
+      el.classList.remove('double-digit', 'triple-digit');
+      if (len >= 3) el.classList.add('triple-digit');
+      else if (len >= 2) el.classList.add('double-digit');
+    });
+  }
+  function updateScoreboardSizing() {
+    updateNameSizing();
+    updateScoreSizing();
+  }
   onValue(ref(db, 'scoreboard'), (snap) => {
     const data = snap.val(); if (!data) return;
     Object.entries(fieldMap).forEach(([key, id]) => {
@@ -922,6 +960,7 @@
       const v = String(data[key]);
       if (el.textContent !== v) { if (key === 'score1' || key === 'score2') flash(el); el.textContent = v; }
     });
+    updateScoreboardSizing();
   });
   function tick() {
     const el = document.getElementById('disp-clock');
@@ -936,6 +975,8 @@
     setTimeout(tick, 1000);
   }
   tick();
+  window.addEventListener('resize', () => setTimeout(updateScoreboardSizing, 60));
+  setTimeout(updateScoreboardSizing, 120);
 </script>
 
 <script>
