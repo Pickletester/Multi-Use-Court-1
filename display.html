@@ -124,16 +124,22 @@
     .score-num {
       position: relative;
       z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-family: 'Bebas Neue', sans-serif;
       font-size: 204px;
       font-weight: 400;
       color: #fff;
       text-align: center;
-      line-height: 0.78;
+      line-height: 1;
       letter-spacing: -0.01em;
       text-shadow: 0 4px 10px rgba(0,0,0,0.22);
-      transform: translateY(4px);
+      transform: none;
       transition: font-size 120ms ease;
+      font-variant-numeric: tabular-nums;
     }
     .score-num.double-digit {
       font-size: 184px;
@@ -226,9 +232,9 @@
     }
 
     @keyframes scoreFlash {
-      0%{ transform:translateY(4px) scale(1); }
-      30%{ transform:translateY(4px) scale(1.08); color:#ffe066; text-shadow:0 0 18px rgba(255,224,102,0.7); }
-      100%{ transform:translateY(4px) scale(1); }
+      0%{ transform:scale(1); }
+      30%{ transform:scale(1.08); color:#ffe066; text-shadow:0 0 18px rgba(255,224,102,0.7); }
+      100%{ transform:scale(1); }
     }
     .flash { animation: scoreFlash 0.4s ease; }
 
