@@ -447,9 +447,69 @@
       justify-content: center;
       width: 100%;
       height: 100%;
+      position: relative;
+      z-index: 1;
     }
     .bar.skill #cn { background: #000; }
     .bar.skill #cn .val { color: #fff; }
+
+    /* ── FLEX DROP-IN ── diagonal stripe texture.
+       Two layers, both gated on .bar.flex:
+       1) a full-bar pattern behind every section (the main "score bug" body)
+       2) a bolder pattern on the court-number block itself
+       Both sit BEHIND the text/number, so the skill-level color code and
+       all readouts stay fully legible. */
+    .bar.flex::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(255,255,255,0.10) 0,
+        rgba(255,255,255,0.10) 9px,
+        rgba(255,255,255,0) 9px,
+        rgba(255,255,255,0) 20px
+      );
+    }
+    .bar.flex.skill-light::before {
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(0,0,0,0.12) 0,
+        rgba(0,0,0,0.12) 9px,
+        rgba(0,0,0,0) 9px,
+        rgba(0,0,0,0) 20px
+      );
+    }
+    .bar.flex .sec { z-index: 1; }
+    .bar.flex #cn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(255,255,255,0.26) 0,
+        rgba(255,255,255,0.26) 9px,
+        rgba(255,255,255,0) 9px,
+        rgba(255,255,255,0) 20px
+      );
+    }
+    /* "FLEX" tag in the In Progress / Upcoming label */
+    .flex-tag {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: #fff;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.45);
+      border-radius: 3px;
+      padding: 1px 5px;
+      line-height: 1;
+    }
 
     /* Light skill colors (Advanced/Pro) need BLACK text for readability */
     .bar.skill.skill-light #cur .val,
@@ -802,6 +862,8 @@
     #testPanel button:hover { background: rgba(60,196,64,0.2); border-color: var(--green); }
     #testPanel button.reset { background: rgba(255,68,68,0.15); border-color: rgba(255,68,68,0.4); margin-top: 4px; }
     #testPanel button.reset:hover { background: rgba(255,68,68,0.3); }
+    #testPanel button.flex { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.45); }
+    #testPanel button.flex:hover { background: rgba(96,165,250,0.3); }
     #testPanel .hint {
       font-size: 9px;
       color: rgba(255,255,255,0.4);
@@ -823,6 +885,8 @@
     <button data-test="3.5–3.99 Intermediate+">Intermediate+ (3.5–3.99)</button>
     <button data-test="4.0–4.49 Advanced Open Play">Advanced (4.0–4.49)</button>
     <button data-test="4.5+ Open Play">Pro (4.5+)</button>
+    <button class="flex" data-test="Flex Drop In">Flex Drop-In (no skill)</button>
+    <button class="flex" data-test="3.5–3.99 Flex Drop In">Flex + Skill (3.5)</button>
     <button data-test="__overlay__">Show Event Overlay</button>
     <button data-test="__bday__">Show Birthday</button>
     <button data-test="__warn__">Show 10m Warning (Yellow)</button>
@@ -872,7 +936,7 @@
         <div class="val" id="cno">1</div>
       </div>
       <div id="cur" class="sec">
-        <div class="label"><span class="live-dot"></span>In Progress</div>
+        <div class="label" id="curlbl"><span class="live-dot"></span>In Progress</div>
         <div class="val" id="curv">Loading...</div>
       </div>
       <div id="expireMsg">
@@ -884,7 +948,7 @@
         <div class="val" id="cdv">--</div>
       </div>
       <div id="nxt" class="sec">
-        <div class="label">Upcoming</div>
+        <div class="label" id="nxtlbl">Upcoming</div>
         <div class="val" id="nxtv">Loading next...</div>
       </div>
       <div id="now" class="sec">
@@ -993,6 +1057,8 @@
   var SHOW_DEBUG=false, EXCLUDE_EVENT_NAMES=["Pickleball 101"];
   var refreshDelayMs=BASE_REFRESH_MS, refreshTimer=null;
   var currentLevelLabel="", currentLevelBg="#0c0c0c", currentLevelBubble=null, currentIsSkill=false;
+  var currentIsFlex=false;
+  var FLEX_KEYWORDS=["flex"];
   var cdTimer=null, cdMode="none", cdTarget=null;
   var nxtStart=null, lastCurName="", lastGood=null;
   var cacheEv=[], cacheRes=[];
@@ -1014,6 +1080,11 @@
   function pickArray(c){ if(!c) return []; if(Array.isArray(c)) return c; if(typeof c==="object"){ if(Array.isArray(c.Data)) return c.Data; if(Array.isArray(c.data)) return c.data; if(Array.isArray(c.Items)) return c.Items; if(Array.isArray(c.Results)) return c.Results; } return []; }
   function containsCourtN(rec,n){ n=Number(n)||1; if(!rec) return false; var visited=(typeof WeakSet!=="undefined")?new WeakSet():null; function strMatchesN(s){ if(!s) return false; s=String(s).toLowerCase(); if(s.indexOf("court")===-1) return false; var exact=new RegExp("courts?\\s*#?\\s*"+n+"(?!\\d)","g"); if(exact.test(s)) return true; var rg=/courts?\s*#?\s*(\d+)\s*[-–]\s*#?\s*(\d+)/g,m; while((m=rg.exec(s))!==null){ var a=+m[1],b=+m[2]; if(n>=Math.min(a,b)&&n<=Math.max(a,b)) return true; } var lg=/courts?\s*#?\s*(\d+)(?!\d)/g,lm; while((lm=lg.exec(s))!==null){ if(parseInt(lm[1],10)===n) return true; } return false; } function courtRelatedKey(k){ if(!k) return false; var s=String(k).toLowerCase(); return s==="courtnumber"||s==="courtno"||s==="courtid"||s==="court_id"||s==="court_number"||s==="resourceid"||s==="resource_id"||s==="facilitycourtid"; } function scan(val,key){ if(val==null) return false; var t=typeof val; if(t==="number") return courtRelatedKey(key)&&(val===n); if(t==="string") return strMatchesN(val); if(Array.isArray(val)){ for(var i=0;i<val.length;i++) if(scan(val[i],key)) return true; return false; } if(t==="object"){ if(visited&&visited.has(val)) return false; if(visited) visited.add(val); for(var k in val){ if(!Object.prototype.hasOwnProperty.call(val,k)) continue; if(scan(val[k],k)) return true; } } return false; } return scan(rec,""); }
   function isExcludedByName(name){ if(!name||!EXCLUDE_EVENT_NAMES.length) return false; var nl=String(name).toLowerCase(); for(var i=0;i<EXCLUDE_EVENT_NAMES.length;i++) if(nl.indexOf(EXCLUDE_EVENT_NAMES[i].toLowerCase())>=0) return true; return false; }
+  function isFlexDropIn(name){ if(!name) return false; var nl=String(name).toLowerCase(); for(var i=0;i<FLEX_KEYWORDS.length;i++) if(nl.indexOf(FLEX_KEYWORDS[i].toLowerCase())>=0) return true; return false; }
+  // True only when a value looks like a REAL cancellation timestamp.
+  // CourtReserve sends null for active records, but sometimes a min-date
+  // sentinel ("0001-01-01..." or /Date(<=0)/) which must NOT count as cancelled.
+  function hasRealCancelDate(v){ if(v==null) return false; var s=String(v).trim(); if(s==="") return false; if(s.indexOf("0001-01-01")>=0) return false; var m=s.match(/\/Date\((-?\d+)/); if(m&&Number(m[1])<=0) return false; return true; }
   function tickClock(){ document.getElementById("clock").textContent=toLocalNY(new Date()); var now=new Date(); setTimeout(tickClock,1000-now.getMilliseconds()); }
   function xhrJSON(url,headers,ms,cb){ try{ var x=new XMLHttpRequest(); x.open("GET",url,true); x.timeout=ms||8000; if(headers) for(var k in headers) if(headers.hasOwnProperty(k)) x.setRequestHeader(k,headers[k]); x.onreadystatechange=function(){ if(x.readyState===4){ if(x.status>=200&&x.status<300){ var d=null; try{d=JSON.parse(x.responseText);}catch(e){} cb(null,d,x.status); } else cb(new Error("HTTP "+x.status),null,x.status); } }; x.ontimeout=function(){ cb(new Error("timeout"),null,0); }; x.onerror=function(){ cb(new Error("network"),null,0); }; x.send(); }catch(e){ cb(e,null,0); } }
   function apiHeaders(){ var h={}; if(API_KEY&&API_KEY.trim()) h["X-API-Key"]=API_KEY.trim(); return h; }
@@ -1022,6 +1093,7 @@
 
   function setBarMode(mode){
     var bar=document.getElementById("bar"), cn=document.getElementById("cn"), cd=document.getElementById("cd");
+    var flexCls = currentIsFlex ? " flex" : "";
     if(mode==="expiring"){ bar.className="bar expiring"; cn.className="sec alert"; cd.className="sec urgent"; return; }
     if(mode==="red"){ bar.className="bar red"; cn.className="sec alert"; cd.className="sec urgent"; return; }
     cn.className="sec"; cd.className="sec";
@@ -1030,10 +1102,10 @@
       bar.style.setProperty("--bar-skill-b",base);
       bar.style.setProperty("--bar-skill-a",darkenHex(base,0.4));
       var isLight = isLightColor(base);
-      bar.className = "bar skill" + (isLight ? " skill-light" : "");
+      bar.className = "bar skill" + (isLight ? " skill-light" : "") + flexCls;
       return;
     }
-    bar.className="bar";
+    bar.className="bar" + flexCls;
   }
 
   function isLightColor(hex){
@@ -1061,7 +1133,9 @@
   function setBookAtFrontDesk(){
     if(cdTimer){ clearTimeout(cdTimer); cdTimer=null; }
     cdMode="book"; cdTarget=null;
-    currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false;
+    currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false; currentIsFlex=false;
+    var curLbl=document.getElementById("curlbl");
+    if(curLbl) curLbl.innerHTML='<span class="live-dot"></span>In Progress';
 
     var curEl=document.getElementById("curv");
     var nxtEl=document.getElementById("nxtv");
@@ -1140,6 +1214,12 @@
     if(x.IsCanceled===true||x.IsCancelled===true||x.Cancelled===true||x.Canceled===true) return true;
     if(x.IsActive===false||x.Active===false||x.IsDeleted===true||x.Deleted===true) return true;
 
+    // Reservation-style cancellation timestamp (null/sentinel when active).
+    // The word-scan below misses this because the value is a DATE, not the word "cancelled".
+    if(hasRealCancelDate(x.CancelledOn)||hasRealCancelDate(x.CanceledOn)||
+       hasRealCancelDate(x.CancellationDate)||hasRealCancelDate(x.CanceledOnUtc)||
+       hasRealCancelDate(x.CancelledOnUtc)) return true;
+
     var cancelWords = /(cancelled|canceled|cancelled event|canceled event|void|deleted|inactive)/i;
     var statusKeys  = /(status|cancel|active|delete|void)/i;
     var visited = (typeof WeakSet!=="undefined") ? new WeakSet() : null;
@@ -1188,16 +1268,20 @@
 
   function render(cur,nxt){
     var curEl=document.getElementById("curv"), nxtEl=document.getElementById("nxtv");
+    var curLbl=document.getElementById("curlbl"), nxtLbl=document.getElementById("nxtlbl");
     if(cur){
       lastCurName=cur.name+fmtTime(cur);
       var lv=getLevelInfo(cur.name||"");
       currentLevelLabel=lv.label; currentLevelBg=lv.overlayBg; currentLevelBubble=lv.bubbleColor; currentIsSkill=!!lv.bubbleColor;
+      currentIsFlex=isFlexDropIn(cur.name||"");
+      if(curLbl) curLbl.innerHTML='<span class="live-dot"></span>In Progress'+(currentIsFlex?' <span class="flex-tag">Flex</span>':'');
       if(curEl.style.color !== "rgb(255, 255, 255)") curEl.style.color="#ffffff";
       swapContent(curEl, cur.name+fmtTime(cur));
       setBarMode(currentIsSkill?"skill":"normal");
       startCountdown(cur.end.getTime(),"cur");
     } else {
-      currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false;
+      currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false; currentIsFlex=false;
+      if(curLbl) curLbl.innerHTML='<span class="live-dot"></span>In Progress';
       var dimColor = "rgba(255, 255, 255, 0.55)";
       if(curEl.style.color !== dimColor) curEl.style.color=dimColor;
       swapContent(curEl, "No current event");
@@ -1209,9 +1293,11 @@
     if(nxt){
       var nxtLv = getLevelInfo(nxt.name||"");
       var pill = nxtLv.bubbleColor ? "<span class='skill-pill' style='background:"+nxtLv.bubbleColor+";color:"+nxtLv.bubbleColor+"'></span>" : "";
+      if(nxtLbl) nxtLbl.innerHTML='Upcoming'+(isFlexDropIn(nxt.name||"")?' <span class="flex-tag">Flex</span>':'');
       if(nxtEl.style.color !== nxtDimColor) nxtEl.style.color=nxtDimColor;
       swapContent(nxtEl, pill+nxt.name+fmtTime(nxt));
     } else {
+      if(nxtLbl) nxtLbl.innerHTML='Upcoming';
       if(nxtEl.style.color !== nxtDimColor) nxtEl.style.color=nxtDimColor;
       swapContent(nxtEl, "No upcoming event");
     }
@@ -1219,7 +1305,7 @@
 
   function normalizeEvent(x){ if(isCancelled(x)) return null; var nm=x.EventName||x.Name||x.Title||x.name||x.title||"Event"; var s=parseTimeAny(x.StartDateTime||x.StartTime||x.Start||x.startDateTime||x.start); var e=parseTimeAny(x.EndDateTime||x.EndTime||x.End||x.endDateTime||x.end); if(!s||!e) return null; return {kind:"event",name:nm,start:s,end:e,raw:x}; }
   function shortName(p){ var fn=(p.FirstName||p.firstName||"").trim(),ln=(p.LastName||p.lastName||"").trim(),i=fn?fn.charAt(0).toUpperCase()+".":""; return (i&&ln)?(i+" "+ln):(i||ln||""); }
-  function normalizeResv(x){ var s=parseTimeAny(x.StartTime||x.StartDateTime||x.Start||x.startTime||x.start); var e=parseTimeAny(x.EndTime||x.EndDateTime||x.End||x.endTime||x.end); if(!s||!e) return null; var name=""; if(Array.isArray(x.Players)&&x.Players.length){ var arr=[]; for(var i=0;i<x.Players.length;i++) arr.push(shortName(x.Players[i]||{})); name=arr.join(", "); } if(!name&&x.ReservationTypeName) name=x.ReservationTypeName; if(!name) name="Reserved"; return {kind:"res",name:name,start:s,end:e,raw:x}; }
+  function normalizeResv(x){ if(isCancelled(x)) return null; var s=parseTimeAny(x.StartTime||x.StartDateTime||x.Start||x.startTime||x.start); var e=parseTimeAny(x.EndTime||x.EndDateTime||x.End||x.endTime||x.end); if(!s||!e) return null; var name=""; if(Array.isArray(x.Players)&&x.Players.length){ var arr=[]; for(var i=0;i<x.Players.length;i++) arr.push(shortName(x.Players[i]||{})); name=arr.join(", "); } if(!name&&x.ReservationTypeName) name=x.ReservationTypeName; if(!name) name="Reserved"; return {kind:"res",name:name,start:s,end:e,raw:x}; }
 
   function computeAndRender(){ var ev=[],rs=[],i; for(i=0;i<cacheEv.length;i++){ var a=normalizeEvent(cacheEv[i]); if(a) ev.push(a); } for(i=0;i<cacheRes.length;i++){ var b=normalizeResv(cacheRes[i]); if(b) rs.push(b); } var evC=[],rsC=[],evFallback=[]; for(i=0;i<ev.length;i++){ if(isExcludedByName(ev[i].name)) continue; var rc=ev[i].raw.Courts; if(Array.isArray(rc)&&rc.length===0){ evFallback.push(ev[i]); } else if(containsCourtN(ev[i].raw,COURT_NO)){ evC.push(ev[i]); } } for(i=0;i<rs.length;i++){ if(isExcludedByName(rs[i].name)) continue; if(containsCourtN(rs[i].raw,COURT_NO)) rsC.push(rs[i]); } var primary=rsC.concat(evC); primary.sort(function(a,b){ return a.start-b.start; }); evFallback.sort(function(a,b){ return a.start-b.start; }); var now=new Date(),cur=null,nxt=null,it,i2; for(i2=0;i2<primary.length;i2++){ it=primary[i2]; if(now>=it.start&&now<=it.end){ if(!cur){ cur=it; } else if(it.end>cur.end){ cur=it; } else if(it.end.getTime()===cur.end.getTime()&&it.kind==="res"&&cur.kind==="event"){ cur=it; } } if(!nxt&&now<it.start) nxt=it; } if(!cur){ for(i2=0;i2<evFallback.length;i2++){ it=evFallback[i2]; if(now>=it.start&&now<=it.end){ cur=it; break; } } } if(!nxt){ for(i2=0;i2<evFallback.length;i2++){ it=evFallback[i2]; if(now<it.start){ nxt=it; break; } } } nxtStart=nxt?nxt.start.getTime():null; if(cur||nxt) lastGood={cur:cur,nxt:nxt}; if(cur||nxt) render(cur,nxt); else { lastGood=null; render(null,null); } }
 
