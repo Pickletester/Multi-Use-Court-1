@@ -79,7 +79,7 @@
     .player-box::after {
       content: "";
       position: absolute;
-      inset: 0;
+      top: 0; right: 0; bottom: 0; left: 0;
       background: linear-gradient(135deg, rgba(255,255,255,0.07), transparent 40%);
       pointer-events: none;
     }
@@ -116,7 +116,7 @@
     .score-area::after {
       content: "";
       position: absolute;
-      inset: 0;
+      top: 0; right: 0; bottom: 0; left: 0;
       background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 42%);
       pointer-events: none;
     }
@@ -462,7 +462,7 @@
     .bar.flex::before {
       content: "";
       position: absolute;
-      inset: 0;
+      top: 0; right: 0; bottom: 0; left: 0;
       z-index: 0;
       pointer-events: none;
       background: repeating-linear-gradient(
@@ -486,7 +486,7 @@
     .bar.flex #cn::after {
       content: "";
       position: absolute;
-      inset: 0;
+      top: 0; right: 0; bottom: 0; left: 0;
       z-index: 0;
       pointer-events: none;
       background: repeating-linear-gradient(
@@ -549,16 +549,6 @@
 
 
 
-    .book-front-desk-text {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 34px;
-      font-weight: 400;
-      letter-spacing: 0.08em;
-      color: #fff;
-      text-transform: uppercase;
-      line-height: 1;
-      white-space: nowrap;
-    }
     .bar.red #cur .label,
     .bar.red #nxt .label,
     .bar.red #now .label,
@@ -579,7 +569,7 @@
 
     /* ── EVENT OVERLAY ── */
     #infoOverlay {
-      position:fixed; inset:0;
+      position:fixed; top:0; right:0; bottom:0; left:0;
       z-index:9999; background:rgba(5,8,24,.85);
       display:flex; align-items:center; justify-content:center;
       opacity:0; pointer-events:none;
@@ -662,7 +652,7 @@
 
     /* ── BIRTHDAY OVERLAY ── */
     #bdayOverlay {
-      position:fixed; inset:0;
+      position:fixed; top:0; right:0; bottom:0; left:0;
       z-index:10000; background: rgba(5,8,24,0.88);
       display:flex; align-items:center; justify-content:center;
       opacity:0; pointer-events:none;
@@ -750,7 +740,7 @@
     }
 
     .balloon-container {
-      position:fixed; inset:0;
+      position:fixed; top:0; right:0; bottom:0; left:0;
       pointer-events:none; z-index:9999; overflow:hidden;
     }
     .balloon {
@@ -886,13 +876,15 @@
     <button data-test="4.0–4.49 Advanced Open Play">Advanced (4.0–4.49)</button>
     <button data-test="4.5+ Open Play">Pro (4.5+)</button>
     <button class="flex" data-test="Flex Drop In">Flex Drop-In (no skill)</button>
-    <button class="flex" data-test="3.5–3.99 Flex Drop In">Flex + Skill (3.5)</button>
+    <button class="flex" data-test="2.0 to 3.4 Flex">2.0–3.4 Flex (blue)</button>
+    <button class="flex" data-test="3.5 Flex (3.0 to 4.0)">3.5 Flex (pink)</button>
+    <button class="flex" data-test="4.0 Flex (3.5 to 4.5)">4.0 Flex (orange)</button>
+    <button class="flex" data-test="4.5 Flex (4.0 to 4.5+)">4.5 Flex (yellow)</button>
     <button data-test="__overlay__">Show Event Overlay</button>
     <button data-test="__bday__">Show Birthday</button>
     <button data-test="__warn__">Show 10m Warning (Yellow)</button>
     <button data-test="__danger__">Show 5m Danger (Red Glow)</button>
     <button data-test="__urgent__">Show Time Expiring</button>
-    <button data-test="__book__">Show Book at Front Desk Red Bar</button>
     <button data-test="__scoreboard__">Show Scoreboard View</button>
     <button data-test="__scorebug__">Show Scorebug View</button>
     <button class="reset" data-test="__reset__">Resume Live Data</button>
@@ -1130,12 +1122,16 @@
 
 
 
-  function setBookAtFrontDesk(){
+  // No current or upcoming event — go quietly idle with the normal (navy) bar
+  // and dim "No current/upcoming event" text. No red "Book at Front Desk" takeover.
+  function setIdle(){
     if(cdTimer){ clearTimeout(cdTimer); cdTimer=null; }
-    cdMode="book"; cdTarget=null;
+    cdMode="none"; cdTarget=null;
     currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false; currentIsFlex=false;
     var curLbl=document.getElementById("curlbl");
+    var nxtLbl=document.getElementById("nxtlbl");
     if(curLbl) curLbl.innerHTML='<span class="live-dot"></span>In Progress';
+    if(nxtLbl) nxtLbl.innerHTML='Upcoming';
 
     var curEl=document.getElementById("curv");
     var nxtEl=document.getElementById("nxtv");
@@ -1143,25 +1139,24 @@
     var lbl=document.getElementById("cdlbl");
     var cdEl=document.getElementById("cd");
 
-    if(cdEl){ cdEl.className="sec urgent"; }
+    if(cdEl){ cdEl.className="sec"; }
     if(curEl){
-      curEl.style.color="#ffffff";
-      swapContent(curEl,"<span class='book-front-desk-text'>Book at Front desk</span>");
+      curEl.style.color="rgba(255, 255, 255, 0.55)";
+      swapContent(curEl,"No current event");
     }
     if(nxtEl){
-      nxtEl.style.color="rgba(255,255,255,0.85)";
+      nxtEl.style.color="rgba(255, 255, 255, 0.6)";
       swapContent(nxtEl,"No upcoming event");
     }
-    if(lbl) lbl.textContent="Available";
-    if(out){ out.className="val"; out.textContent="OPEN"; }
-    setBarMode("red");
+    if(lbl) lbl.textContent="Time Left";
+    if(out){ out.className="val"; out.textContent="--"; }
+    setBarMode("normal");
   }
 
   function startCountdown(targetMs,mode){ cdTarget=targetMs; cdMode=mode||"none"; if(cdTimer){ clearTimeout(cdTimer); cdTimer=null; }
     function tick(){
       var out=document.getElementById("cdv"),lbl=document.getElementById("cdlbl");
       if(!cdTarget){
-        if(cdMode==="book"){ setBookAtFrontDesk(); return; }
         out.className="val"; out.textContent="--"; lbl.textContent="Time Left"; setBarMode(currentIsSkill?"skill":"normal"); cdTimer=setTimeout(tick,1000); return;
       }
       var diff=cdTarget-Date.now();
@@ -1177,7 +1172,7 @@
         cdTimer=setTimeout(tick,1000);
       } else {
         if(cdMode==="cur"){
-          if(!nxtStart){ lastGood=null; setBookAtFrontDesk(); try{ refresh(true); }catch(e){} return; }
+          if(!nxtStart){ lastGood=null; setIdle(); try{ refresh(true); }catch(e){} return; }
           setBarMode("red"); lbl.textContent="";
           out.className="val expired-msg"; out.innerHTML="<span>TIME</span><span>EXPIRED</span>";
           var curEl=document.getElementById("curv");
@@ -1186,7 +1181,7 @@
             setBarMode(currentIsSkill?"skill":"normal");
             resetExpiredVisuals();
             if(nxtStart){ cdMode="next"; cdTarget=nxtStart; tick(); }
-            else { lastGood=null; setBookAtFrontDesk(); try{ refresh(true); }catch(e){} }
+            else { lastGood=null; setIdle(); try{ refresh(true); }catch(e){} }
           },30000);
         } else if(cdMode==="next"){
           cdTarget=null; cdMode="none"; out.className="val"; out.textContent="--";
@@ -1204,7 +1199,17 @@
 
   function fmtTime(d){ return "<div class='meta'>"+toLocalNY(d.start)+" – "+toLocalNY(d.end)+"</div>"; }
 
-  function getLevelInfo(title){ var t=(title||""),tl=t.toLowerCase(),tn=tl.replace(/\s+/g,"").replace(/[–—]/g,"-"); var info={bubbleColor:null,label:"",overlayBg:"#0c0c0c"}; if(tn.indexOf("4.5+")>=0||tn.indexOf("4.5-")>=0||tn.indexOf("5.0")>=0){ info.bubbleColor="#cfd829"; info.label="4.5+"; info.overlayBg="#cfd829"; } else if(tn.indexOf("4.0-4.4")>=0||tn.indexOf("4.0-4.49")>=0||tn.indexOf("4.0-4.5")>=0||tn.indexOf("4.0-4")>=0){ info.bubbleColor="#f47855"; info.label="4.0–4.49"; info.overlayBg="#f47855"; } else if(tn.indexOf("3.5-3.9")>=0||tn.indexOf("3.5-3.99")>=0||tn.indexOf("3.5+")>=0){ info.bubbleColor="#ee3c85"; info.label="3.5–3.99"; info.overlayBg="#6d28d9"; } else if(tn.indexOf("3.0-3.4")>=0||tn.indexOf("3.0-3.49")>=0){ info.bubbleColor="#22c55e"; info.label="3.0–3.49"; info.overlayBg="#15803d"; } else if(tn.indexOf("2.0-2.9")>=0||tn.indexOf("2.0-2.99")>=0){ info.bubbleColor="#38bdf8"; info.label="2.0–2.99"; info.overlayBg="#0ea5e9"; } else if(tl.indexOf("advanced")>=0){ info.bubbleColor="#cfd829"; info.label="4.5+"; info.overlayBg="#cfd829"; } else if(tl.indexOf("intermediate+")>=0){ info.bubbleColor="#ee3c85"; info.label="3.5–3.99"; info.overlayBg="#6d28d9"; } else if(tl.indexOf("intermediate")>=0){ info.bubbleColor="#48b749"; info.label="3.0–3.49"; info.overlayBg="#15803d"; } else if(tl.indexOf("beginner")>=0){ info.bubbleColor="#38bdf8"; info.label="2.0–2.99"; info.overlayBg="#0ea5e9"; } return info; }
+  function getLevelInfo(title){ var t=(title||""),tl=t.toLowerCase(),tn=tl.replace(/\s+/g,"").replace(/[–—]/g,"-"); var info={bubbleColor:null,label:"",overlayBg:"#0c0c0c"};
+    // Flex tier headline colours — e.g. "3.5 Flex (3.0 to 4.0)", "4.0 Flex (3.5 to 4.5)",
+    // "4.5 Flex (4.0 to 4.5+)", "3.0 Flex (2.0 to 3.4)", "2.0 to 3.4 Flex". Match on the
+    // leading headline level so each Flex tier carries its own skill colour.
+    if(tn.indexOf("4.5flex")>=0){ info.bubbleColor="#cfd829"; info.label="4.5+"; info.overlayBg="#cfd829"; }
+    else if(tn.indexOf("4.0flex")>=0){ info.bubbleColor="#f47855"; info.label="4.0–4.49"; info.overlayBg="#f47855"; }
+    else if(tn.indexOf("3.5flex")>=0){ info.bubbleColor="#ee3c85"; info.label="3.5–3.99"; info.overlayBg="#6d28d9"; }
+    else if(tn.indexOf("3.0flex")>=0){ info.bubbleColor="#22c55e"; info.label="3.0–3.49"; info.overlayBg="#15803d"; }
+    else if(tn.indexOf("2.5flex")>=0||tn.indexOf("2.0flex")>=0||tn.indexOf("2.0to3.4flex")>=0){ info.bubbleColor="#38bdf8"; info.label="2.0–2.99"; info.overlayBg="#0ea5e9"; }
+    // Standard skill ranges
+    else if(tn.indexOf("4.5+")>=0||tn.indexOf("4.5-")>=0||tn.indexOf("5.0")>=0){ info.bubbleColor="#cfd829"; info.label="4.5+"; info.overlayBg="#cfd829"; } else if(tn.indexOf("4.0-4.4")>=0||tn.indexOf("4.0-4.49")>=0||tn.indexOf("4.0-4.5")>=0||tn.indexOf("4.0-4")>=0){ info.bubbleColor="#f47855"; info.label="4.0–4.49"; info.overlayBg="#f47855"; } else if(tn.indexOf("3.5-3.9")>=0||tn.indexOf("3.5-3.99")>=0||tn.indexOf("3.5+")>=0){ info.bubbleColor="#ee3c85"; info.label="3.5–3.99"; info.overlayBg="#6d28d9"; } else if(tn.indexOf("3.0-3.4")>=0||tn.indexOf("3.0-3.49")>=0){ info.bubbleColor="#22c55e"; info.label="3.0–3.49"; info.overlayBg="#15803d"; } else if(tn.indexOf("2.0-2.9")>=0||tn.indexOf("2.0-2.99")>=0){ info.bubbleColor="#38bdf8"; info.label="2.0–2.99"; info.overlayBg="#0ea5e9"; } else if(tl.indexOf("advanced")>=0){ info.bubbleColor="#cfd829"; info.label="4.5+"; info.overlayBg="#cfd829"; } else if(tl.indexOf("intermediate+")>=0){ info.bubbleColor="#ee3c85"; info.label="3.5–3.99"; info.overlayBg="#6d28d9"; } else if(tl.indexOf("intermediate")>=0){ info.bubbleColor="#48b749"; info.label="3.0–3.49"; info.overlayBg="#15803d"; } else if(tl.indexOf("beginner")>=0){ info.bubbleColor="#38bdf8"; info.label="2.0–2.99"; info.overlayBg="#0ea5e9"; } return info; }
 
   function isCancelled(x){
     if(!x||typeof x!=="object") return false;
@@ -1287,7 +1292,7 @@
       swapContent(curEl, "No current event");
       setBarMode("normal");
       if(nxt) startCountdown(nxt.start.getTime(),"next");
-      else    setBookAtFrontDesk();
+      else    setIdle();
     }
     var nxtDimColor = "rgba(255, 255, 255, 0.6)";
     if(nxt){
@@ -1384,11 +1389,6 @@
     render({kind:"event",name:"3.0–3.49 Intermediate",start:new Date(now.getTime()-60*60*1000),end:new Date(now.getTime()+4.5*60*1000),raw:{}},
            {kind:"event",name:"Advanced Drills",start:new Date(now.getTime()+10*60*1000),end:new Date(now.getTime()+70*60*1000),raw:{}});
   }
-  function fakeBookAtFrontDesk(){
-    testActive = true;
-    if(refreshTimer){ clearTimeout(refreshTimer); refreshTimer = null; }
-    setBookAtFrontDesk();
-  }
   function exitTestMode(){
     testActive = false;
     refresh();
@@ -1407,7 +1407,6 @@
       if(v === "__warn__"){ fakeWarn(); return; }
       if(v === "__danger__"){ fakeDanger(); return; }
       if(v === "__urgent__"){ fakeUrgent(); return; }
-      if(v === "__book__"){ fakeBookAtFrontDesk(); return; }
       if(v === "__scoreboard__"){ setLocalView("scoreboard"); return; }
       if(v === "__scorebug__"){ setLocalView("scorebug"); return; }
       if(v === "__reset__"){ exitTestMode(); return; }
