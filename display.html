@@ -1488,7 +1488,6 @@
   startBirthdayLoop();
 })();
 </script>
-<script src="https://levelup-eagleeye-bridge.s-jackson.workers.dev/person-detected.js"></script>
   <!-- ═══ GOLDEN TICKET BAR ═══════════════════════════════════════════
        Self-contained. Between GOLD_START and GOLD_END (club time) the normal
        bar is replaced by a Golden Ticket bar showing only the court number
@@ -1506,6 +1505,8 @@
     }
     body.golden #gtBar { display:grid; }
     body.golden #bar { visibility:hidden; }
+    /* stop the hidden bar animating, so the player has less to do */
+    body.golden #bar, body.golden #bar * { animation:none !important; transition:none !important; }
     body.golden #infoOverlay { display:none !important; }
 
     #gtBar .gt-num, #gtBar .gt-time {
@@ -1611,5 +1612,48 @@
     }catch(e){}
   })();
   </script>
+  <script>
+  (function(){
+    // Offline copy of this page (service worker): lets the board reload even
+    // with no wifi. Ignored by browsers that do not support it.
+    try{
+      if("serviceWorker" in navigator){
+        var p = navigator.serviceWorker.register("sw.js");
+        if(p && p["catch"]) p["catch"](function(){});
+      }
+    }catch(e){}
+
+    // Add ?diag=1 to the board's URL to show what this player supports.
+    try{
+      if(/[?&]diag=1\b/.test(location.search || "")){
+        var box = document.createElement("div");
+        box.style.cssText = "position:fixed;top:8px;left:8px;z-index:20000;background:#000;color:#7CFC00;" +
+          "font:16px/1.5 monospace;padding:10px 14px;border:1px solid #7CFC00;max-width:90vw;white-space:pre-wrap;";
+        document.body.appendChild(box);
+        var report = function(){
+          var ua = navigator.userAgent || "", m = /Chrome\/(\d+)/.exec(ua);
+          var sw = ("serviceWorker" in navigator);
+          var ctl = sw && !!navigator.serviceWorker.controller;
+          var ls = "no", saved = "no";
+          try{
+            localStorage.setItem("levelup_diag","1"); localStorage.removeItem("levelup_diag"); ls = "yes";
+            var cno = document.getElementById("cno");
+            if(localStorage.getItem("levelup_court_" + (cno ? cno.textContent : "") + "_schedule")) saved = "yes";
+          }catch(e){}
+          box.textContent =
+            "BROWSER: " + (m ? "Chrome " + m[1] : "unknown") + "\n" +
+            "OFFLINE PAGE COPY SUPPORTED: " + (sw ? "yes" : "no") + "\n" +
+            "OFFLINE PAGE COPY ACTIVE: " + (ctl ? "yes" : "no (reload once more)") + "\n" +
+            "DEVICE STORAGE WORKS: " + ls + "\n" +
+            "SCHEDULE SAVED ON DEVICE: " + saved + "\n" +
+            "BOARD CLOCK: " + new Date().toString() + "\n" +
+            "GOLDEN TICKET SHOWING: " + (document.body.classList.contains("golden") ? "yes" : "no");
+        };
+        report(); setInterval(report, 2000);
+      }
+    }catch(e){}
+  })();
+  </script>
+<script src="https://levelup-eagleeye-bridge.s-jackson.workers.dev/person-detected.js"></script>
 </body>
 </html>
