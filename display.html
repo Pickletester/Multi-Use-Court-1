@@ -525,33 +525,6 @@
       background: #000 !important;
       box-shadow: 0 0 8px rgba(0,0,0,0.5) !important;
     }
-    /* ── GOLDEN TICKET ── whole bar + court-number block go gold.
-       Applied on top of .skill.skill-light, so all readouts are already
-       switched to dark text; these rules only repaint the surfaces. */
-    .bar.gold {
-      background: linear-gradient(90deg,
-        #a9781a 0%, #e2b63f 25%, #fbe58a 50%, #e2b63f 75%, #a9781a 100%);
-      background-size: 200% 100%;
-      animation: goldSheen 8s ease-in-out infinite;
-      border-top-color: #fff1a8;
-    }
-    @keyframes goldSheen {
-      0%, 100% { background-position: 0% 50%; }
-      50%      { background-position: 100% 50%; }
-    }
-    .bar.gold #cn {
-      background: linear-gradient(180deg, #fff3b0 0%, #f0c93a 45%, #b8860b 100%);
-    }
-    .bar.gold #cn .val {
-      color: #2a1c00;
-      -webkit-text-stroke: 1.5px #2a1c00;
-      text-shadow: 0 1px 0 rgba(255,255,255,0.55);
-    }
-    .bar.gold .sec { border-left-color: rgba(0,0,0,0.35); }
-    .bar.gold #cur .label,
-    .bar.gold #nxt .label { color: rgba(0,0,0,0.72); }
-    .bar.gold .flex-tag { background: rgba(0,0,0,0.55); }
-
     .bar.expiring #cn { background: transparent; }
     .bar.expiring #cn .val { color: #fff; }
     .bar.red #cn { background: transparent; }
@@ -907,7 +880,6 @@
     <button class="flex" data-test="3.5 Flex (3.0 to 4.0)">3.5 Flex (pink)</button>
     <button class="flex" data-test="4.0 Flex (3.5 to 4.5)">4.0 Flex (orange)</button>
     <button class="flex" data-test="4.5 Flex (4.0 to 4.5+)">4.5 Flex (yellow)</button>
-    <button data-test="Golden Ticket Tournament">Golden Ticket (gold)</button>
     <button data-test="__overlay__">Show Event Overlay</button>
     <button data-test="__bday__">Show Birthday</button>
     <button data-test="__warn__">Show 10m Warning (Yellow)</button>
@@ -1080,24 +1052,10 @@
   var currentIsFlex=false;
   var FLEX_KEYWORDS=["flex"];
 
-  // Any event whose name contains one of these (case-insensitive) turns the
-  // whole bar and the court-number block GOLD for as long as it is in progress.
-  var GOLD_KEYWORDS = ["golden ticket", "golden"];
-  var GOLD_COLOR    = "#d4af37";
-  var currentIsGold = false;
-  // Last good schedule is also kept on the device, so a reload while the
-  // wifi is down still shows today's schedule (and the gold bar).
+  // Last good schedule is also kept on the device, so a reload or power blip
+  // while the wifi is down still shows today's schedule.
   var LS_KEY        = "levelup_court_" + COURT_NO + "_schedule";
   var LS_MAX_AGE_MS = 18 * 60 * 60 * 1000;
-
-  // True when the event name marks it as a Golden Ticket event
-  function isGoldEvent(name){
-    if(!name) return false;
-    var nl=String(name).toLowerCase();
-    for(var i=0;i<GOLD_KEYWORDS.length;i++)
-      if(nl.indexOf(GOLD_KEYWORDS[i].toLowerCase())>=0) return true;
-    return false;
-  }
 
   // ── ON-DEVICE SCHEDULE CACHE ─────────────────────────
   function saveSchedule(){
@@ -1148,7 +1106,7 @@
 
   function setBarMode(mode){
     var bar=document.getElementById("bar"), cn=document.getElementById("cn"), cd=document.getElementById("cd");
-    var flexCls = (currentIsFlex ? " flex" : "") + (currentIsGold ? " gold" : "");
+    var flexCls = currentIsFlex ? " flex" : "";
     if(mode==="expiring"){ bar.className="bar expiring"; cn.className="sec alert"; cd.className="sec urgent"; return; }
     if(mode==="red"){ bar.className="bar red"; cn.className="sec alert"; cd.className="sec urgent"; return; }
     cn.className="sec"; cd.className="sec";
@@ -1190,7 +1148,7 @@
   function setIdle(){
     if(cdTimer){ clearTimeout(cdTimer); cdTimer=null; }
     cdMode="none"; cdTarget=null;
-    currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false; currentIsFlex=false; currentIsGold=false;
+    currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false; currentIsFlex=false;
     var curLbl=document.getElementById("curlbl");
     var nxtLbl=document.getElementById("nxtlbl");
     if(curLbl) curLbl.innerHTML='<span class="live-dot"></span>In Progress';
@@ -1262,13 +1220,7 @@
 
   function fmtTime(d){ return "<div class='meta'>"+toLocalNY(d.start)+" – "+toLocalNY(d.end)+"</div>"; }
 
-  function getLevelInfo(title){ var t=(title||""),tl=t.toLowerCase(),tn=tl.replace(/\s+/g,"").replace(/[–—]/g,"-"); var info={bubbleColor:null,label:"",overlayBg:"#0c0c0c",gold:false};
-    // Golden Ticket wins over any skill level in the name
-    if(isGoldEvent(t)){
-      info.bubbleColor=GOLD_COLOR; info.label="Golden Ticket"; info.overlayBg=GOLD_COLOR; info.gold=true;
-      return info;
-    }
-
+  function getLevelInfo(title){ var t=(title||""),tl=t.toLowerCase(),tn=tl.replace(/\s+/g,"").replace(/[–—]/g,"-"); var info={bubbleColor:null,label:"",overlayBg:"#0c0c0c"};
     // Flex tier headline colours — e.g. "3.5 Flex (3.0 to 4.0)", "4.0 Flex (3.5 to 4.5)",
     // "4.5 Flex (4.0 to 4.5+)", "3.0 Flex (2.0 to 3.4)", "2.0 to 3.4 Flex". Match on the
     // leading headline level so each Flex tier carries its own skill colour.
@@ -1348,14 +1300,13 @@
       var lv=getLevelInfo(cur.name||"");
       currentLevelLabel=lv.label; currentLevelBg=lv.overlayBg; currentLevelBubble=lv.bubbleColor; currentIsSkill=!!lv.bubbleColor;
       currentIsFlex=isFlexDropIn(cur.name||"");
-      currentIsGold=!!lv.gold;
       if(curLbl) curLbl.innerHTML='<span class="live-dot"></span>In Progress'+(currentIsFlex?' <span class="flex-tag">Flex</span>':'');
       if(curEl.style.color !== "rgb(255, 255, 255)") curEl.style.color="#ffffff";
       swapContent(curEl, cur.name+fmtTime(cur));
       setBarMode(currentIsSkill?"skill":"normal");
       startCountdown(cur.end.getTime(),"cur");
     } else {
-      currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false; currentIsFlex=false; currentIsGold=false;
+      currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false; currentIsFlex=false;
       if(curLbl) curLbl.innerHTML='<span class="live-dot"></span>In Progress';
       var dimColor = "rgba(255, 255, 255, 0.55)";
       if(curEl.style.color !== dimColor) curEl.style.color=dimColor;
@@ -1538,5 +1489,127 @@
 })();
 </script>
 <script src="https://levelup-eagleeye-bridge.s-jackson.workers.dev/person-detected.js"></script>
+  <!-- ═══ GOLDEN TICKET BAR ═══════════════════════════════════════════
+       Self-contained. Between GOLD_START and GOLD_END (club time) the normal
+       bar is replaced by a Golden Ticket bar showing only the court number
+       and the current time. Outside that window nothing changes.
+       It runs off the device clock, so it needs no wifi.
+       Press G on a keyboard to preview it / press G again to go back. -->
+  <style>
+    #gtBar {
+      position:fixed; left:0; right:0; bottom:0; height:72px; z-index:50;
+      display:none; box-sizing:border-box; overflow:hidden;
+      grid-template-columns: minmax(110px,1.3fr) 5fr minmax(200px,2.6fr);
+      background:#0b0906; border-top:2px solid #f6d977;
+      font-family:'Bebas Neue', Impact, 'Arial Narrow', Arial, sans-serif;
+      font-weight:400;
+    }
+    body.golden #gtBar { display:grid; }
+    body.golden #bar { visibility:hidden; }
+    body.golden #infoOverlay { display:none !important; }
+
+    #gtBar .gt-num, #gtBar .gt-time {
+      display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(180deg,#fff3b0 0%,#f0c93a 45%,#b8860b 100%);
+      color:#1d1400; line-height:1; white-space:nowrap;
+      text-shadow:0 1px 0 rgba(255,255,255,.55);
+      padding-top:4px; box-sizing:border-box;
+    }
+    #gtBar .gt-num  { font-size:72px; letter-spacing:.02em; -webkit-text-stroke:1.5px #1d1400; }
+    #gtBar .gt-time { font-size:60px; font-size:clamp(36px,7vw,62px); letter-spacing:.03em; }
+
+    #gtBar .gt-mid {
+      position:relative; display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+      background:
+        radial-gradient(ellipse at 50% 130%, rgba(212,175,55,.34), rgba(212,175,55,0) 62%),
+        repeating-linear-gradient(-45deg, rgba(246,217,119,.07) 0, rgba(246,217,119,.07) 8px, rgba(0,0,0,0) 8px, rgba(0,0,0,0) 18px),
+        #0b0906;
+    }
+    /* ticket-stub perforations */
+    #gtBar .gt-mid::before, #gtBar .gt-mid::after {
+      content:""; position:absolute; top:5px; bottom:5px; width:0;
+      border-left:3px dotted rgba(246,217,119,.75);
+    }
+    #gtBar .gt-mid::before { left:14px; }
+    #gtBar .gt-mid::after  { right:14px; }
+
+    #gtBar .gt-title {
+      font-size:58px; font-size:clamp(28px,6.4vw,60px);
+      letter-spacing:.12em; line-height:1; white-space:nowrap;
+      padding-top:5px; margin:0 .32em;
+      color:#f0c93a;
+    }
+    @supports ((-webkit-background-clip:text) or (background-clip:text)) {
+      #gtBar .gt-title {
+        background:linear-gradient(100deg,
+          #b8860b 0%, #f6d977 22%, #fffbe6 46%, #f0c93a 68%, #b8860b 100%);
+        -webkit-background-clip:text; background-clip:text;
+        -webkit-text-fill-color:transparent; color:transparent;
+      }
+    }
+
+    #gtBar .gt-star {
+      font-family:Arial, sans-serif; font-size:26px; line-height:1; color:#f6d977;
+      text-shadow:0 0 10px rgba(246,217,119,.7);
+    }
+    @media (max-width:700px) { #gtBar .gt-star { display:none; } }
+  </style>
+  <script>
+  (function(){
+    try{
+      // ── GOLDEN TICKET SCHEDULE (club time, Eastern) ──
+      var GOLD_START = Date.parse("2026-11-13T15:00:00-05:00"); // Fri Nov 13, 3:00 PM
+      var GOLD_END   = Date.parse("2026-11-15T22:00:00-05:00"); // Sun Nov 15, 10:00 PM
+      var TZ = "America/New_York";
+
+      var bar = document.getElementById("bar");
+      if(!bar) return;
+      var el = document.createElement("div");
+      el.id = "gtBar";
+      el.innerHTML =
+        '<div class="gt-num" id="gtNum"></div>' +
+        '<div class="gt-mid"><span class="gt-star">★</span>' +
+        '<span class="gt-title">Golden Ticket</span>' +
+        '<span class="gt-star">★</span></div>' +
+        '<div class="gt-time" id="gtTime">--:--</div>';
+      el.querySelector(".gt-title").style.textTransform = "uppercase";
+      bar.parentNode.insertBefore(el, bar.nextSibling);
+      var numEl = document.getElementById("gtNum"), timeEl = document.getElementById("gtTime");
+
+      // null = follow the schedule; true/false = forced (G key or ?gold=1 / ?gold=0)
+      var force = null;
+      var q = /[?&]gold=(0|1)\b/.exec(location.search || "");
+      if(q) force = (q[1] === "1");
+
+      function scheduled(){ var n = Date.now(); return n >= GOLD_START && n < GOLD_END; }
+      function fmt(d){
+        try{ return d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:TZ}); }
+        catch(e){ var h=d.getHours(), m=d.getMinutes(); return ((h%12)||12)+":"+(m<10?"0":"")+m+(h<12?" AM":" PM"); }
+      }
+      function tick(){
+        var on = (force === null) ? scheduled() : force;
+        var has = document.body.classList.contains("golden");
+        if(on && !has) document.body.classList.add("golden");
+        if(!on && has) document.body.classList.remove("golden");
+        if(on){
+          var cno = document.getElementById("cno");
+          var n = cno ? cno.textContent : "";
+          if(numEl.textContent !== n) numEl.textContent = n;
+          var t = fmt(new Date());
+          if(timeEl.textContent !== t) timeEl.textContent = t;
+        }
+      }
+      document.addEventListener("keydown", function(e){
+        if(e.key === "g" || e.key === "G"){
+          force = (force === null) ? !scheduled() : null;
+          tick();
+        }
+      });
+      tick();
+      setInterval(tick, 1000);
+    }catch(e){}
+  })();
+  </script>
 </body>
 </html>
