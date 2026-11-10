@@ -525,6 +525,33 @@
       background: #000 !important;
       box-shadow: 0 0 8px rgba(0,0,0,0.5) !important;
     }
+    /* ── GOLDEN TICKET ── whole bar + court-number block go gold.
+       Applied on top of .skill.skill-light, so all readouts are already
+       switched to dark text; these rules only repaint the surfaces. */
+    .bar.gold {
+      background: linear-gradient(90deg,
+        #a9781a 0%, #e2b63f 25%, #fbe58a 50%, #e2b63f 75%, #a9781a 100%);
+      background-size: 200% 100%;
+      animation: goldSheen 8s ease-in-out infinite;
+      border-top-color: #fff1a8;
+    }
+    @keyframes goldSheen {
+      0%, 100% { background-position: 0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+    .bar.gold #cn {
+      background: linear-gradient(180deg, #fff3b0 0%, #f0c93a 45%, #b8860b 100%);
+    }
+    .bar.gold #cn .val {
+      color: #2a1c00;
+      -webkit-text-stroke: 1.5px #2a1c00;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.55);
+    }
+    .bar.gold .sec { border-left-color: rgba(0,0,0,0.35); }
+    .bar.gold #cur .label,
+    .bar.gold #nxt .label { color: rgba(0,0,0,0.72); }
+    .bar.gold .flex-tag { background: rgba(0,0,0,0.55); }
+
     .bar.expiring #cn { background: transparent; }
     .bar.expiring #cn .val { color: #fff; }
     .bar.red #cn { background: transparent; }
@@ -880,6 +907,7 @@
     <button class="flex" data-test="3.5 Flex (3.0 to 4.0)">3.5 Flex (pink)</button>
     <button class="flex" data-test="4.0 Flex (3.5 to 4.5)">4.0 Flex (orange)</button>
     <button class="flex" data-test="4.5 Flex (4.0 to 4.5+)">4.5 Flex (yellow)</button>
+    <button data-test="Golden Ticket Tournament">Golden Ticket (gold)</button>
     <button data-test="__overlay__">Show Event Overlay</button>
     <button data-test="__bday__">Show Birthday</button>
     <button data-test="__warn__">Show 10m Warning (Yellow)</button>
@@ -1051,6 +1079,41 @@
   var currentLevelLabel="", currentLevelBg="#0c0c0c", currentLevelBubble=null, currentIsSkill=false;
   var currentIsFlex=false;
   var FLEX_KEYWORDS=["flex"];
+
+  // Any event whose name contains one of these (case-insensitive) turns the
+  // whole bar and the court-number block GOLD for as long as it is in progress.
+  var GOLD_KEYWORDS = ["golden ticket", "golden"];
+  var GOLD_COLOR    = "#d4af37";
+  var currentIsGold = false;
+  // Last good schedule is also kept on the device, so a reload while the
+  // wifi is down still shows today's schedule (and the gold bar).
+  var LS_KEY        = "levelup_court_" + COURT_NO + "_schedule";
+  var LS_MAX_AGE_MS = 18 * 60 * 60 * 1000;
+
+  // True when the event name marks it as a Golden Ticket event
+  function isGoldEvent(name){
+    if(!name) return false;
+    var nl=String(name).toLowerCase();
+    for(var i=0;i<GOLD_KEYWORDS.length;i++)
+      if(nl.indexOf(GOLD_KEYWORDS[i].toLowerCase())>=0) return true;
+    return false;
+  }
+
+  // ── ON-DEVICE SCHEDULE CACHE ─────────────────────────
+  function saveSchedule(){
+    try{
+      localStorage.setItem(LS_KEY, JSON.stringify({t:Date.now(), events:cacheEv, reservations:cacheRes}));
+    }catch(e){}
+  }
+  function loadSchedule(){
+    try{
+      var o=JSON.parse(localStorage.getItem(LS_KEY)||"null");
+      if(!o||!o.t||(Date.now()-o.t)>LS_MAX_AGE_MS) return false;
+      cacheEv =Array.isArray(o.events)?o.events:[];
+      cacheRes=Array.isArray(o.reservations)?o.reservations:[];
+      return (cacheEv.length+cacheRes.length)>0;
+    }catch(e){ return false; }
+  }
   var cdTimer=null, cdMode="none", cdTarget=null;
   var nxtStart=null, lastCurName="", lastGood=null;
   var cacheEv=[], cacheRes=[];
@@ -1085,7 +1148,7 @@
 
   function setBarMode(mode){
     var bar=document.getElementById("bar"), cn=document.getElementById("cn"), cd=document.getElementById("cd");
-    var flexCls = currentIsFlex ? " flex" : "";
+    var flexCls = (currentIsFlex ? " flex" : "") + (currentIsGold ? " gold" : "");
     if(mode==="expiring"){ bar.className="bar expiring"; cn.className="sec alert"; cd.className="sec urgent"; return; }
     if(mode==="red"){ bar.className="bar red"; cn.className="sec alert"; cd.className="sec urgent"; return; }
     cn.className="sec"; cd.className="sec";
@@ -1127,7 +1190,7 @@
   function setIdle(){
     if(cdTimer){ clearTimeout(cdTimer); cdTimer=null; }
     cdMode="none"; cdTarget=null;
-    currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false; currentIsFlex=false;
+    currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false; currentIsFlex=false; currentIsGold=false;
     var curLbl=document.getElementById("curlbl");
     var nxtLbl=document.getElementById("nxtlbl");
     if(curLbl) curLbl.innerHTML='<span class="live-dot"></span>In Progress';
@@ -1199,7 +1262,13 @@
 
   function fmtTime(d){ return "<div class='meta'>"+toLocalNY(d.start)+" – "+toLocalNY(d.end)+"</div>"; }
 
-  function getLevelInfo(title){ var t=(title||""),tl=t.toLowerCase(),tn=tl.replace(/\s+/g,"").replace(/[–—]/g,"-"); var info={bubbleColor:null,label:"",overlayBg:"#0c0c0c"};
+  function getLevelInfo(title){ var t=(title||""),tl=t.toLowerCase(),tn=tl.replace(/\s+/g,"").replace(/[–—]/g,"-"); var info={bubbleColor:null,label:"",overlayBg:"#0c0c0c",gold:false};
+    // Golden Ticket wins over any skill level in the name
+    if(isGoldEvent(t)){
+      info.bubbleColor=GOLD_COLOR; info.label="Golden Ticket"; info.overlayBg=GOLD_COLOR; info.gold=true;
+      return info;
+    }
+
     // Flex tier headline colours — e.g. "3.5 Flex (3.0 to 4.0)", "4.0 Flex (3.5 to 4.5)",
     // "4.5 Flex (4.0 to 4.5+)", "3.0 Flex (2.0 to 3.4)", "2.0 to 3.4 Flex". Match on the
     // leading headline level so each Flex tier carries its own skill colour.
@@ -1279,13 +1348,14 @@
       var lv=getLevelInfo(cur.name||"");
       currentLevelLabel=lv.label; currentLevelBg=lv.overlayBg; currentLevelBubble=lv.bubbleColor; currentIsSkill=!!lv.bubbleColor;
       currentIsFlex=isFlexDropIn(cur.name||"");
+      currentIsGold=!!lv.gold;
       if(curLbl) curLbl.innerHTML='<span class="live-dot"></span>In Progress'+(currentIsFlex?' <span class="flex-tag">Flex</span>':'');
       if(curEl.style.color !== "rgb(255, 255, 255)") curEl.style.color="#ffffff";
       swapContent(curEl, cur.name+fmtTime(cur));
       setBarMode(currentIsSkill?"skill":"normal");
       startCountdown(cur.end.getTime(),"cur");
     } else {
-      currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false; currentIsFlex=false;
+      currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false; currentIsFlex=false; currentIsGold=false;
       if(curLbl) curLbl.innerHTML='<span class="live-dot"></span>In Progress';
       var dimColor = "rgba(255, 255, 255, 0.55)";
       if(curEl.style.color !== dimColor) curEl.style.color=dimColor;
@@ -1315,7 +1385,7 @@
   function computeAndRender(){ var ev=[],rs=[],i; for(i=0;i<cacheEv.length;i++){ var a=normalizeEvent(cacheEv[i]); if(a) ev.push(a); } for(i=0;i<cacheRes.length;i++){ var b=normalizeResv(cacheRes[i]); if(b) rs.push(b); } var evC=[],rsC=[],evFallback=[]; for(i=0;i<ev.length;i++){ if(isExcludedByName(ev[i].name)) continue; var rc=ev[i].raw.Courts; if(Array.isArray(rc)&&rc.length===0){ evFallback.push(ev[i]); } else if(containsCourtN(ev[i].raw,COURT_NO)){ evC.push(ev[i]); } } for(i=0;i<rs.length;i++){ if(isExcludedByName(rs[i].name)) continue; if(containsCourtN(rs[i].raw,COURT_NO)) rsC.push(rs[i]); } var primary=rsC.concat(evC); primary.sort(function(a,b){ return a.start-b.start; }); evFallback.sort(function(a,b){ return a.start-b.start; }); var now=new Date(),cur=null,nxt=null,it,i2; for(i2=0;i2<primary.length;i2++){ it=primary[i2]; if(now>=it.start&&now<=it.end){ if(!cur){ cur=it; } else if(it.end>cur.end){ cur=it; } else if(it.end.getTime()===cur.end.getTime()&&it.kind==="res"&&cur.kind==="event"){ cur=it; } } if(!nxt&&now<it.start) nxt=it; } if(!cur){ for(i2=0;i2<evFallback.length;i2++){ it=evFallback[i2]; if(now>=it.start&&now<=it.end){ cur=it; break; } } } if(!nxt){ for(i2=0;i2<evFallback.length;i2++){ it=evFallback[i2]; if(now<it.start){ nxt=it; break; } } } nxtStart=nxt?nxt.start.getTime():null; if(cur||nxt) lastGood={cur:cur,nxt:nxt}; if(cur||nxt) render(cur,nxt); else { lastGood=null; render(null,null); } }
 
   function scheduleNext(){ if(testActive) return; if(refreshTimer) clearTimeout(refreshTimer); refreshTimer=setTimeout(function(){ refresh(false); },refreshDelayMs); }
-  function refresh(){ if(testActive) return; var url=PROXY_BASE+"?court="+COURT_NO; xhrJSON(url,apiHeaders(),8000,function(err,data,status){ if(!err&&data){ showErrBadge(false); refreshDelayMs=BASE_REFRESH_MS; cacheEv=pickArray(data.events); cacheRes=pickArray(data.reservations); computeAndRender(); } else { var msg="API issue — backing off…"; if(status===429) msg="Rate limited — backing off…"; if(status===403) msg="Forbidden — check API key"; showErrBadge(true,msg); refreshDelayMs=Math.min(refreshDelayMs*2,MAX_BACKOFF_MS); try{ computeAndRender(); }catch(e){} } scheduleNext(); }); }
+  function refresh(){ if(testActive) return; var url=PROXY_BASE+"?court="+COURT_NO; xhrJSON(url,apiHeaders(),8000,function(err,data,status){ if(!err&&data){ showErrBadge(false); refreshDelayMs=BASE_REFRESH_MS; cacheEv=pickArray(data.events); cacheRes=pickArray(data.reservations); saveSchedule(); computeAndRender(); } else { var msg="API issue — backing off…"; if(status===429) msg="Rate limited — backing off…"; if(status===403) msg="Forbidden — check API key"; showErrBadge(true,msg); refreshDelayMs=Math.min(refreshDelayMs*2,MAX_BACKOFF_MS); try{ computeAndRender(); }catch(e){} } scheduleNext(); }); }
 
   var infoOverlay=document.getElementById("infoOverlay"),overlayBodyEl=document.getElementById("overlayBody"),overlayBoxEl=document.getElementById("overlayBox"),overlayLvlEl=document.getElementById("overlayLevel");
   function applyOverlayStyles(){
@@ -1426,7 +1496,11 @@
 
 
   document.getElementById("cno").textContent=String(COURT_NO);
-  tickClock(); refresh(); scheduleNext(); startOverlayLoop();
+  tickClock();
+  // Paint from the on-device copy first, so the bar is right even before
+  // (or without) the first successful fetch.
+  if(loadSchedule()){ try{ computeAndRender(); }catch(e){} }
+  refresh(); scheduleNext(); startOverlayLoop();
 
   // ── BIRTHDAY OVERLAY ──────────────────────────────────────
   bdayOverlay = document.getElementById("bdayOverlay");
