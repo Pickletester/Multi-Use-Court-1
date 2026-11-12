@@ -1489,7 +1489,7 @@
 })();
 </script>
   <!-- ═══ GOLDEN TICKET BAR ═══════════════════════════════════════════
-       Self-contained. Between GOLD_START and GOLD_END (club time) the normal
+       Self-contained. During GOLD_WINDOWS (club time) the normal
        bar is replaced by a Golden Ticket bar showing only the court number
        and the current time. Outside that window nothing changes.
        It runs off the device clock, so it needs no wifi.
@@ -1560,9 +1560,11 @@
   (function(){
     try{
       // ── GOLDEN TICKET SCHEDULE (club time, Eastern) ──
-      var GOLD_START = Date.parse("2026-11-13T15:00:00-05:00"); // Fri Nov 13, 3:00 PM
-      var GOLD_END   = Date.parse("2026-11-15T22:00:00-05:00"); // Sun Nov 15, 10:00 PM
-      var TZ = "America/New_York";
+      var GOLD_WINDOWS = [
+        [Date.parse("2026-11-12T16:00:00-05:00"), Date.parse("2026-11-12T21:59:00-05:00")], // Thu Nov 12, 4:00 PM - 9:59 PM
+        [Date.parse("2026-11-13T16:00:00-05:00"), Date.parse("2026-11-15T21:59:00-05:00")]  // Fri Nov 13 4:00 PM - Sun Nov 15 9:59 PM
+      ];
+            var TZ = "America/New_York";
 
       var bar = document.getElementById("bar");
       if(!bar) return;
@@ -1583,7 +1585,7 @@
       var q = /[?&]gold=(0|1)\b/.exec(location.search || "");
       if(q) force = (q[1] === "1");
 
-      function scheduled(){ var n = Date.now(); return n >= GOLD_START && n < GOLD_END; }
+      function scheduled(){ var n = Date.now(); for(var i=0;i<GOLD_WINDOWS.length;i++){ if(n >= GOLD_WINDOWS[i][0] && n < GOLD_WINDOWS[i][1]) return true; } return false; }
       function fmt(d){
         try{ return d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:TZ}); }
         catch(e){ var h=d.getHours(), m=d.getMinutes(); return ((h%12)||12)+":"+(m<10?"0":"")+m+(h<12?" AM":" PM"); }
