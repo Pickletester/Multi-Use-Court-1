@@ -1656,13 +1656,14 @@
       overlayLvlEl.textContent="";
       overlayLvlEl.style.color="";
       overlayBoxEl.style.background = "";
+      overlayBoxEl.setAttribute("data-bg", "#0c0c0c");
       overlayBoxEl.style.color = "";
       overlayBodyEl.style.color = "";
       overlayBoxEl.style.border = "";
     }
   }
   function isInLastMinuteOfEvent(){ if(!cdTarget||cdMode!=="cur") return false; var diff=cdTarget-Date.now(); return diff>0&&diff<=BDAY_END_BUFFER_MS; }
-  function showOverlay(){ if(isInLastMinuteOfEvent()) return; if(bdayActive) return; if(!infoOverlay) return; if(!document.getElementById("scorebugView").classList.contains("active")) return; var curEl=document.getElementById("curv"); if(curEl&&overlayBodyEl) overlayBodyEl.innerHTML=curEl.innerHTML||curEl.textContent||""; applyOverlayStyles(); infoOverlay.classList.add("active"); setTimeout(function(){ infoOverlay.classList.remove("active"); },10000); }
+  function showOverlay(){ if(isInLastMinuteOfEvent()) return; if(bdayActive) return; if(!infoOverlay) return; if(!document.getElementById("scorebugView").classList.contains("active")) return; var curEl=document.getElementById("curv"); if(curEl&&overlayBodyEl){ var __t=curEl.textContent||""; overlayBodyEl.innerHTML=/no current event/i.test(__t)?"":(curEl.innerHTML||__t); } applyOverlayStyles(); infoOverlay.classList.add("active"); setTimeout(function(){ infoOverlay.classList.remove("active"); },10000); }
   function startOverlayLoop(){ if(!infoOverlay) return; var now=new Date(); var ms=(60-now.getSeconds())*1000-now.getMilliseconds(); if(ms<100) ms=100; setTimeout(function(){ showOverlay(); setInterval(showOverlay,60000); },ms+2000); }
 
 
