@@ -868,7 +868,6 @@
       background: #5e0a12 url(xmas-court-panel.png) center / cover no-repeat !important;
       box-shadow: none;
     }
-    html.xmas #cn .val {
       font-family: 'Arial Black', 'Impact', sans-serif;
       font-size: 62px;
       font-weight: 900;
@@ -961,7 +960,6 @@
     }
     html.xmas .bar:not(.skill):not(.expiring) #cd { background: linear-gradient(90deg, #135c30, #1d7a40 50%, #135c30) !important; }
     html.xmas .bar:not(.skill):not(.expiring) #now { background: linear-gradient(90deg, #0d3d20, #135c30) !important; }
-    html.xmas #cn .val { font-size: 74px; }
     /* normal-mode court number: dark green panel, not the snow-art panel */
     html.xmas .bar:not(.skill):not(.expiring) #cn {
       background: linear-gradient(90deg, #0d3620 0%, #17603a 50%, #0d3620 100%) !important;
@@ -1039,19 +1037,7 @@
       backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
     }
 
-    /* bar text: keep each line on one row and scale it to the screen (fixes cramped text on small displays) */
-    html.xmas .bar .sec { overflow: hidden; }
-    html.xmas .bar .sec .val, html.xmas .bar .sec .label {
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
-    }
-    html.xmas .bar #cur .val, html.xmas .bar #nxt .val { font-size: clamp(9px, 1.15vw, 20px) !important; line-height: 1.1 !important; }
-    html.xmas .bar #cd .val, html.xmas .bar #now .val { font-size: clamp(14px, 2vw, 31px) !important; }
-    html.xmas .bar .label { font-size: clamp(6px, 0.7vw, 12px) !important; }
-    html.xmas #cn .val { font-size: clamp(34px, 4.2vw, 74px) !important; }
 
-    /* session text shifted right; the small time line is smaller */
-    html.xmas .bar #cur .val, html.xmas .bar #nxt .val { padding-left: 3vw !important; }
-    html.xmas .bar #cur .meta, html.xmas .bar #nxt .meta { font-size: clamp(5px, 0.62vw, 9px) !important; line-height: 1.1 !important; }
 
     /* gift popup art is inline in the page (no background image), chosen by level */
     html.xmas #infoOverlay { background: rgba(0,0,0,.5) !important; }
@@ -1066,8 +1052,6 @@
     html.xmas #overlayBox[data-bg="#0c0c0c"] .gift-art[data-art="#0c0c0c"] { display: block; }
     html.xmas #overlayBox > .overlayLogo, html.xmas #overlayBox > #overlayLevel, html.xmas #overlayBox > #overlayBody { z-index: 1; }
 
-    /* clock: smaller so the full time fits on small displays */
-    html.xmas .bar #now .val { font-size: clamp(12px, 1.7vw, 28px) !important; white-space: nowrap !important; }
 </style>
 <script>
 // Christmas theme switch: on until 1 Jan 2027 00:00 ET, then the normal look returns automatically.
