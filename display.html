@@ -985,9 +985,8 @@
     /* ── CHRISTMAS: popup artwork (blank gift picture per level) with live logo and rating in its slots ── */
     html.xmas #infoOverlay .overlayBox {
       position: relative !important;
-      width: min(845px, 92vw) !important;
-      height: calc(min(845px, 92vw) * 0.4545) !important;
-      aspect-ratio: 845 / 384 !important;
+      width: 60vw !important;
+      height: 27.3vw !important;
       min-width: 0 !important; padding: 0 !important; border: 0 !important;
       border-radius: 0 !important; box-shadow: none !important;
       background-size: 100% 100% !important; background-repeat: no-repeat !important;
@@ -1066,6 +1065,9 @@
     html.xmas #overlayBox[data-bg="#cfd829"] .gift-art[data-art="#cfd829"],
     html.xmas #overlayBox[data-bg="#0c0c0c"] .gift-art[data-art="#0c0c0c"] { display: block; }
     html.xmas #overlayBox > .overlayLogo, html.xmas #overlayBox > #overlayLevel, html.xmas #overlayBox > #overlayBody { z-index: 1; }
+
+    /* clock: smaller so the full time fits on small displays */
+    html.xmas .bar #now .val { font-size: clamp(12px, 1.7vw, 28px) !important; white-space: nowrap !important; }
 </style>
 <script>
 // Christmas theme switch: on until 1 Jan 2027 00:00 ET, then the normal look returns automatically.
