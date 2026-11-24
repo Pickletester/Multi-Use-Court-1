@@ -1073,7 +1073,7 @@
 // Christmas theme switch: on until 1 Jan 2027 00:00 ET, then the normal look returns automatically.
 (function(){
   try {
-    if (false) document.documentElement.classList.add("xmas");
+    if (Date.now() < Date.parse("2027-01-01T00:00:00-05:00")) document.documentElement.classList.add("xmas");
   } catch(e) {}
 })();
 </script>
