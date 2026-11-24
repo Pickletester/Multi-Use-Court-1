@@ -1039,6 +1039,16 @@
       background: rgba(0,0,0,.5) url(snow-bg.svg) center / cover no-repeat !important;
       backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
     }
+
+    /* bar text: keep each line on one row and scale it to the screen (fixes cramped text on small displays) */
+    html.xmas .bar .sec { overflow: hidden; }
+    html.xmas .bar .sec .val, html.xmas .bar .sec .label {
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+    }
+    html.xmas .bar #cur .val, html.xmas .bar #nxt .val { font-size: clamp(9px, 1.15vw, 20px) !important; line-height: 1.1 !important; }
+    html.xmas .bar #cd .val, html.xmas .bar #now .val { font-size: clamp(14px, 2vw, 31px) !important; }
+    html.xmas .bar .label { font-size: clamp(6px, 0.7vw, 12px) !important; }
+    html.xmas #cn .val { font-size: clamp(34px, 4.2vw, 74px) !important; }
 </style>
 <script>
 // Christmas theme switch: on until 1 Jan 2027 00:00 ET, then the normal look returns automatically.
