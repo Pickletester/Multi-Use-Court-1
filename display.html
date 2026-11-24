@@ -1390,7 +1390,7 @@
   // CourtReserve sends null for active records, but sometimes a min-date
   // sentinel ("0001-01-01..." or /Date(<=0)/) which must NOT count as cancelled.
   function hasRealCancelDate(v){ if(v==null) return false; var s=String(v).trim(); if(s==="") return false; if(s.indexOf("0001-01-01")>=0) return false; var m=s.match(/\/Date\((-?\d+)/); if(m&&Number(m[1])<=0) return false; return true; }
-  function tickClock(){ document.getElementById("clock").textContent=(document.documentElement.classList.contains("xmas") ? toLocalNY(new Date()).replace(/\s*[AaPp][Mm]$/, "") : toLocalNY(new Date())); var now=new Date(); setTimeout(tickClock,1000-now.getMilliseconds()); }
+  function tickClock(){ document.getElementById("clock").textContent=toLocalNY(new Date()).replace(/\s*[AaPp][Mm]$/, ""); var now=new Date(); setTimeout(tickClock,1000-now.getMilliseconds()); }
   function xhrJSON(url,headers,ms,cb){ try{ var x=new XMLHttpRequest(); x.open("GET",url,true); x.timeout=ms||8000; if(headers) for(var k in headers) if(headers.hasOwnProperty(k)) x.setRequestHeader(k,headers[k]); x.onreadystatechange=function(){ if(x.readyState===4){ if(x.status>=200&&x.status<300){ var d=null; try{d=JSON.parse(x.responseText);}catch(e){} cb(null,d,x.status); } else cb(new Error("HTTP "+x.status),null,x.status); } }; x.ontimeout=function(){ cb(new Error("timeout"),null,0); }; x.onerror=function(){ cb(new Error("network"),null,0); }; x.send(); }catch(e){ cb(e,null,0); } }
   function apiHeaders(){ var h={}; if(API_KEY&&API_KEY.trim()) h["X-API-Key"]=API_KEY.trim(); return h; }
 
