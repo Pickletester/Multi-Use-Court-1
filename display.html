@@ -1049,6 +1049,9 @@
     html.xmas .bar #cd .val, html.xmas .bar #now .val { font-size: clamp(14px, 2vw, 31px) !important; }
     html.xmas .bar .label { font-size: clamp(6px, 0.7vw, 12px) !important; }
     html.xmas #cn .val { font-size: clamp(34px, 4.2vw, 74px) !important; }
+
+    /* nudge the whole bar right on small displays so nothing sits against the left edge */
+    html.xmas .bar { left: 1.5vw !important; right: 0 !important; }
 </style>
 <script>
 // Christmas theme switch: on until 1 Jan 2027 00:00 ET, then the normal look returns automatically.
