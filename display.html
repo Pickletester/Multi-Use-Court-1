@@ -862,7 +862,192 @@
       text-transform: uppercase;
     }
 
-  </style>
+      /* ── CHRISTMAS THEME: only active while html.xmas is set (script in head) ── */
+    html.xmas #cn,
+    html.xmas .bar.skill #cn {
+      background: #5e0a12 url(xmas-court-panel.png) center / cover no-repeat !important;
+      box-shadow: none;
+    }
+    html.xmas #cn .val {
+      font-family: 'Arial Black', 'Impact', sans-serif;
+      font-size: 62px;
+      font-weight: 900;
+      -webkit-text-stroke: 0;
+      letter-spacing: 0;
+      color: #ffffff;
+      text-shadow: 0 3px 0 #7a0c18, 0 6px 8px rgba(0,0,0,.45);
+    }
+    html.xmas .bar .sec { position: relative; overflow: visible; border-left: none !important; }
+    html.xmas .bar #cur, html.xmas .bar #cd, html.xmas .bar #nxt, html.xmas .bar #now { border-left: none !important; }
+    html.xmas .bar #cur::before, html.xmas .bar #cd::before, html.xmas .bar #nxt::before, html.xmas .bar #now::before {
+      content: "";
+      position: absolute;
+      left: -15px; top: 0; bottom: 0;
+      width: 30px;
+      background: url(xmas-garland.png) center / 100% 100% no-repeat;
+      pointer-events: none;
+      z-index: 3;
+    }
+    html.xmas .bar .sec:not(#cn)::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 12px;
+      pointer-events: none;
+      z-index: 1;
+      background: url(xmas-drift.png) center bottom / 100% 100% no-repeat;
+    }
+    html.xmas .bar.skill::before {
+      content: "";
+      position: absolute; inset: 0;
+      pointer-events: none;
+      background: url(xmas-flakes.png) 0 0 / 100% 100% no-repeat;
+      opacity: .9;
+      z-index: 2;
+    }
+
+    /* ── CHRISTMAS: gift-box info popup (colour comes from the skill level via the box background) ── */
+    html.xmas .overlayBox {
+      position: relative;
+      border-radius: 22px;
+      padding: 70px 40px 40px;
+      min-width: 460px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,.55);
+    }
+    html.xmas .overlayBox::before {            /* vertical ribbon */
+      content: ""; position: absolute; top: -12px; bottom: 0; left: 50%;
+      width: 34px; margin-left: -17px;
+      background: linear-gradient(90deg, #0a4a22, #1f8a47 45%, #0a4a22);
+      border-radius: 0 0 4px 4px; z-index: 0;
+    }
+    html.xmas .overlayBox::after {             /* lid band across the top */
+      content: ""; position: absolute; top: -14px; left: -12px; right: -12px; height: 74px;
+      background: linear-gradient(rgba(255,255,255,.28), rgba(0,0,0,.14)), inherit;
+      border-radius: 18px; z-index: 0; box-shadow: 0 6px 14px rgba(0,0,0,.35);
+    }
+    html.xmas .overlayBox > * { position: relative; z-index: 1; }
+    html.xmas .gift-bow {
+      position: absolute; top: -52px; left: 50%; width: 170px; height: 56px; margin-left: -85px; z-index: 2;
+      background:
+        radial-gradient(ellipse 30px 20px at 30px 23px, #2fa35a 60%, #0a4a22 62%, transparent 64%),
+        radial-gradient(ellipse 30px 20px at 120px 23px, #2fa35a 60%, #0a4a22 62%, transparent 64%),
+        radial-gradient(circle 9px at 75px 23px, #8fe0a8 60%, #0a4a22 64%, transparent 66%);
+    }
+    html.xmas .overlayLogo {
+      width: 300px; max-width: 80%; height: auto; display: block; margin: 0 auto 20px;
+      background: #1a0c08; border: 3px solid #f6c850; border-radius: 16px; padding: 12px 22px;
+      box-sizing: border-box;
+    }
+    html.xmas .overlayLevel {
+      font-family: 'Impact', 'Arial Black', sans-serif; font-size: 46px; letter-spacing: .5px;
+      display: block; width: fit-content; margin: 0 auto 20px; background: #1a0c08 !important; color: #fff !important; border-radius: 999px; padding: 8px 34px; line-height: 1.1;
+      box-shadow: 0 5px 0 rgba(0,0,0,.35);
+    }
+    html.xmas .overlayBody, html.xmas .overlayBody * { color: #2a1a10 !important; }
+    html.xmas .overlayBody {
+      margin: 0 auto; max-width: 92%; background: #fff6e2 !important; border: 3px solid #c9a03a;
+      border-radius: 14px; padding: 14px 18px; font-size: 26px; font-weight: 800; line-height: 1.35;
+      box-shadow: inset 0 0 0 2px #fff, 0 6px 14px rgba(0,0,0,.3);
+    }
+    /* ── CHRISTMAS: normal-mode bar (no skill colour) with candy-cane top ── */
+    html.xmas .bar:not(.skill):not(.expiring) {
+      background: linear-gradient(90deg, #4d0a14 0%, #8f1b28 50%, #4d0a14 100%);
+      border-top-color: #1b7a3e;
+    }
+    html.xmas .bar:not(.skill):not(.expiring)::before {
+      content: ""; position: absolute; left: 0; right: 0; top: 0; height: 7px; pointer-events: none; z-index: 4;
+      background: repeating-linear-gradient(135deg, #c81e2d 0 10px, #fff6e2 10px 20px);
+    }
+    html.xmas .bar:not(.skill):not(.expiring) #cd { background: linear-gradient(90deg, #135c30, #1d7a40 50%, #135c30) !important; }
+    html.xmas .bar:not(.skill):not(.expiring) #now { background: linear-gradient(90deg, #0d3d20, #135c30) !important; }
+    html.xmas #cn .val { font-size: 74px; }
+    /* normal-mode court number: dark green panel, not the snow-art panel */
+    html.xmas .bar:not(.skill):not(.expiring) #cn {
+      background: linear-gradient(90deg, #0d3620 0%, #17603a 50%, #0d3620 100%) !important;
+      box-shadow: inset 0 0 0 1px rgba(246,200,80,.35);
+    }
+    html.xmas .bar:not(.skill):not(.expiring) {
+      border-bottom: 2px solid #f6c850;
+    }
+
+    /* ── CHRISTMAS: skill bars use the approved picture as their background (text is live on top) ── */
+    html.xmas .bar.skill { background: none !important; background-size: 100% 100% !important; }
+    html.xmas .bar.skill #cn { background: none !important; box-shadow: none !important; }
+    html.xmas .bar.skill .sec::before, html.xmas .bar.skill .sec::after { content: none !important; display: none !important; }
+    html.xmas .bar.skill::before { content: none !important; display: none !important; }
+    html.xmas .bar.skill[style*="#cfd829" i]  { background: url(bar-45plus.svg) center / 100% 100% no-repeat !important; }
+    html.xmas .bar.skill[style*="#f47855" i]  { background: url(bar-40-449.svg) center / 100% 100% no-repeat !important; }
+    html.xmas .bar.skill[style*="#ffa1d3" i]  { background: url(bar-35-399.svg) center / 100% 100% no-repeat !important; }
+    html.xmas .bar.skill[style*="#15803d" i]  { background: url(bar-30-349.svg) center / 100% 100% no-repeat !important; }
+    html.xmas .bar.skill[style*="#0ea5e9" i]  { background: url(bar-20-299.svg) center / 100% 100% no-repeat !important; }
+
+    /* ── CHRISTMAS: popup artwork (blank gift picture per level) with live logo and rating in its slots ── */
+    html.xmas #infoOverlay .overlayBox {
+      position: relative !important;
+      container-type: inline-size;
+      width: min(845px, 92vw) !important;
+      aspect-ratio: 845 / 384 !important;
+      min-width: 0 !important; padding: 0 !important; border: 0 !important;
+      border-radius: 0 !important; box-shadow: none !important;
+      background-size: 100% 100% !important; background-repeat: no-repeat !important;
+    }
+    html.xmas #overlayBox::before, html.xmas #overlayBox::after { content: none !important; display: none !important; }
+    html.xmas #overlayBox .gift-bow, html.xmas #overlayBox #overlayBody { display: none !important; }
+    html.xmas #overlayBox .overlayLogo {
+      position: absolute; left: 34.2%; top: 41.4%; width: 31.6%; height: 21.35%;
+      margin: 0 !important; max-width: none !important; box-sizing: border-box;
+      object-fit: contain; padding: 2% 3%; border-radius: 10px; background: #17120e;
+    }
+    html.xmas #overlayBox #overlayLevel {
+      position: absolute !important; left: 30.65%; top: 65.9%; width: 38.7%; height: 15.6%;
+      margin: 0 !important; display: flex !important; align-items: center; justify-content: center;
+      font-family: 'Impact', 'Arial Black', sans-serif; font-size: 4.2cqw; white-space: nowrap; color: #fff !important;
+      background: transparent !important; box-shadow: none !important; padding: 0 !important; line-height: 1;
+    }
+    html.xmas #overlayBox[data-bg="#0ea5e9"] { background: url(gift-20-299.svg) center / 100% 100% no-repeat !important; }
+    html.xmas #overlayBox[data-bg="#15803d"] { background: url(gift-30-349.svg) center / 100% 100% no-repeat !important; }
+    html.xmas #overlayBox[data-bg="#ffa1d3"] { background: url(gift-35-399.svg) center / 100% 100% no-repeat !important; }
+    html.xmas #overlayBox[data-bg="#f47855"] { background: url(gift-40-449.svg) center / 100% 100% no-repeat !important; }
+    html.xmas #overlayBox[data-bg="#cfd829"] { background: url(gift-45plus.svg) center / 100% 100% no-repeat !important; }
+
+    /* ── CHRISTMAS: normal bar and no-level popup use the approved art ── */
+    html.xmas .bar:not(.skill):not(.expiring) {
+      background: url(bar-normal.svg) center / 100% 100% no-repeat !important;
+      border-top-color: transparent; border-bottom: 0;
+    }
+    html.xmas .bar:not(.skill):not(.expiring) .sec { background: transparent !important; }
+    html.xmas .bar:not(.skill):not(.expiring) #cn,
+    html.xmas .bar:not(.skill):not(.expiring) #cd,
+    html.xmas .bar:not(.skill):not(.expiring) #now { background: transparent !important; box-shadow: none !important; }
+    html.xmas .bar:not(.skill):not(.expiring)::before,
+    html.xmas .bar:not(.skill):not(.expiring)::after,
+    html.xmas .bar:not(.skill) .sec::before,
+    html.xmas .bar:not(.skill) .sec::after { content: none !important; display: none !important; }
+    html.xmas #overlayBox[data-bg="#0c0c0c"] { background: url(popup-normal.svg) center / 100% 100% no-repeat !important; }
+    html.xmas #overlayBox[data-bg="#0c0c0c"] #overlayLevel { display: none !important; }
+    html.xmas #overlayBox[data-bg="#0c0c0c"] #overlayBody {
+      display: block !important; position: absolute !important;
+      left: 30.65%; top: 73%; width: 38.7%; height: 8%; margin: 0 !important;
+      background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important;
+      font-size: 3vw; font-weight: 800; line-height: 1; color: #2a0a10 !important; text-align: center;
+      display: flex !important; align-items: center; justify-content: center;
+    }
+
+    /* overlay backdrop: black at 50% with snow behind the gift popup */
+    html.xmas #infoOverlay {
+      background: rgba(0,0,0,.5) url(snow-bg.svg) center / cover no-repeat !important;
+      backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+    }
+</style>
+<script>
+// Christmas theme switch: on until 1 Jan 2027 00:00 ET, then the normal look returns automatically.
+(function(){
+  try {
+    if (Date.now() < Date.parse("2027-01-01T00:00:00-05:00")) document.documentElement.classList.add("xmas");
+  } catch(e) {}
+})();
+</script>
 </head>
 <body>
   <div id="errBadge">API issue — backing off…</div>
@@ -952,6 +1137,7 @@
     <!-- Event overlay -->
     <div id="infoOverlay">
       <div class="overlayBox" id="overlayBox">
+      <div class="gift-bow" aria-hidden="true"></div>
         <img src="levelup-logo.png" alt="LevelUp Pickleball" class="overlayLogo">
         <div class="overlayLevel" id="overlayLevel" style="display:none;"></div>
         <div class="overlayBody" id="overlayBody">Loading...</div>
@@ -1345,6 +1531,7 @@
       overlayLvlEl.style.display="inline-block";
       overlayLvlEl.textContent=currentLevelLabel;
       overlayBoxEl.style.background = currentLevelBg || "#0c0c0c";
+      overlayBoxEl.setAttribute("data-bg", (currentLevelBg || "#0c0c0c").toLowerCase());
       var useDark = isLightColor(currentLevelBg || "#0c0c0c");
       var textColor = useDark ? "#000" : "#fff";
       overlayLvlEl.style.color = textColor;
