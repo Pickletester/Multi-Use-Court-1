@@ -1050,8 +1050,9 @@
     html.xmas .bar .label { font-size: clamp(6px, 0.7vw, 12px) !important; }
     html.xmas #cn .val { font-size: clamp(34px, 4.2vw, 74px) !important; }
 
-    /* nudge the whole bar right on small displays so nothing sits against the left edge */
-    html.xmas .bar { left: 1.5vw !important; right: 0 !important; }
+    /* session text shifted right; the small time line is smaller */
+    html.xmas .bar #cur .val, html.xmas .bar #nxt .val { padding-left: 3vw !important; }
+    html.xmas .bar #cur .meta, html.xmas .bar #nxt .meta { font-size: clamp(5px, 0.62vw, 9px) !important; line-height: 1.1 !important; }
 </style>
 <script>
 // Christmas theme switch: on until 1 Jan 2027 00:00 ET, then the normal look returns automatically.
