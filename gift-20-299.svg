@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" width="845" height="384" viewBox="0 0 845 384">
+ <ns0:defs><ns0:linearGradient id="box" x2="0" y2="1"><ns0:stop stop-color="#25c9fb" /><ns0:stop offset="1" stop-color="#0877ac" /></ns0:linearGradient><ns0:linearGradient id="ribbon"><ns0:stop stop-color="#b79a52" /><ns0:stop offset=".26" stop-color="#fff6d6" /><ns0:stop offset=".7" stop-color="#fffdf2" /><ns0:stop offset="1" stop-color="#c0a064" /></ns0:linearGradient><ns0:linearGradient id="lid" x2="0" y2="1"><ns0:stop stop-color="#25c9fb" /><ns0:stop offset="1" stop-color="#0877ac" /></ns0:linearGradient></ns0:defs>
+ <ns0:g><ns0:ellipse cx="422.5" cy="345" rx="225" ry="10" fill="#000" opacity=".22" />
+ <ns0:rect x="207" y="113" width="431" height="229" rx="13" fill="url(#box)" stroke="#0877ac" stroke-width="2" />
+ <ns0:path d="M207 135H638V150H207Z" fill="#000" opacity=".13" />
+ <ns0:rect x="404" y="115" width="37" height="227" fill="url(#ribbon)" />
+ <ns0:rect x="194" y="91" width="457" height="54" rx="10" fill="url(#lid)" stroke="#0877ac" stroke-width="2" />
+ <ns0:path d="M205 96H640" stroke="#fff" opacity=".35" stroke-width="2" />
+ <ns0:rect x="404" y="91" width="37" height="54" fill="url(#ribbon)" />
+ <ns0:g fill="url(#ribbon)" stroke="#c2a768" stroke-width="1.4"><ns0:path d="M419 88C389 94 338 87 336 64C334 39 381 39 419 69Z" /><ns0:path d="M426 88C456 94 507 87 509 64C511 39 464 39 426 69Z" /><ns0:path d="M414 78L389 112L413 106L423 87L433 109L455 115L433 78Z" /><ns0:ellipse cx="422.5" cy="77" rx="14" ry="13" /></ns0:g>
+ <ns0:path d="M348 63Q374 51 407 75M497 63Q471 51 438 75" fill="none" stroke="#fff" stroke-width="3" opacity=".8" />
+ <ns0:rect x="289" y="159" width="267" height="82" rx="12" fill="#17120e" stroke="#d7b868" stroke-width="2" />
+ <ns0:rect x="259" y="253" width="327" height="60" rx="18" fill="#24150f" stroke="#e7ce8d" stroke-width="2" />
+ </ns0:g></ns0:svg>
