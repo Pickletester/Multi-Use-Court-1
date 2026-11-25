@@ -1035,7 +1035,9 @@
     }
     /* snow falling over the no-skill frame (text stays on top) */
     html.xmas #overlayBox[data-bg="#0c0c0c"]::after {
-      content: "" !important; display: block !important; position: absolute; inset: 0;
+      content: "" !important; display: block !important; position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0; width: auto; height: auto; margin: 0;
+      border: 0; border-radius: 0; box-shadow: none; transform: none;
       background: url(snow-bg.svg) center / 100% 100% no-repeat; pointer-events: none; z-index: 0;
     }
     html.xmas #overlayBox[data-bg="#0c0c0c"] #overlayBody::before {
