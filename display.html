@@ -1064,6 +1064,12 @@
     html.xmas #cn .val { font-family: 'Bebas Neue', sans-serif !important; font-size: 60px !important; }
     /* no-skill popup: hide the dark box under the logo */
     html.xmas #overlayBox .gift-art[data-art="#0c0c0c"] rect[x="259"][y="253"] { display: none !important; }
+    /* skill popups: hide the dark box under the logo */
+    html.xmas #overlayBox .gift-art[data-art="#0ea5e9"] rect[x="259"][y="253"],
+    html.xmas #overlayBox .gift-art[data-art="#15803d"] rect[x="259"][y="253"],
+    html.xmas #overlayBox .gift-art[data-art="#ffa1d3"] rect[x="259"][y="253"],
+    html.xmas #overlayBox .gift-art[data-art="#f47855"] rect[x="259"][y="253"],
+    html.xmas #overlayBox .gift-art[data-art="#cfd829"] rect[x="259"][y="253"] { display: none !important; }
 </style>
 <script>
 // Christmas theme switch: on until 1 Jan 2027 00:00 ET, then the normal look returns automatically.
