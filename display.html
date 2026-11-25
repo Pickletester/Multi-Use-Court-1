@@ -1669,7 +1669,16 @@
     }
   }
   function isInLastMinuteOfEvent(){ if(!cdTarget||cdMode!=="cur") return false; var diff=cdTarget-Date.now(); return diff>0&&diff<=BDAY_END_BUFFER_MS; }
-  function showOverlay(){ if(isInLastMinuteOfEvent()) return; if(bdayActive) return; if(!infoOverlay) return; if(!document.getElementById("scorebugView").classList.contains("active")) return; var curEl=document.getElementById("curv"); if(curEl&&overlayBodyEl){ var __t=curEl.textContent||""; overlayBodyEl.innerHTML=curEl.innerHTML||__t; } applyOverlayStyles(); infoOverlay.classList.add("active"); setTimeout(function(){ infoOverlay.classList.remove("active"); },10000); }
+  // shrink the popup text until the name + time fit inside the cream box (no-skill popup only)
+  function fitOverlayBody(){
+    if(!overlayBodyEl || !overlayBoxEl || overlayBoxEl.getAttribute("data-bg")!=="#0c0c0c") { if(overlayBodyEl) overlayBodyEl.style.fontSize=""; return; }
+    overlayBodyEl.style.fontSize="";
+    if(!overlayBodyEl.clientHeight) return;
+    var fs=parseFloat(getComputedStyle(overlayBodyEl).fontSize), n=0;
+    while(overlayBodyEl.scrollHeight>overlayBodyEl.clientHeight+1 && n<25){
+      fs*=0.93; overlayBodyEl.style.fontSize=fs+"px"; n++;
+    }
+  }  function showOverlay(){ if(isInLastMinuteOfEvent()) return; if(bdayActive) return; if(!infoOverlay) return; if(!document.getElementById("scorebugView").classList.contains("active")) return; var curEl=document.getElementById("curv"); if(curEl&&overlayBodyEl){ var __t=curEl.textContent||""; overlayBodyEl.innerHTML=curEl.innerHTML||__t; } applyOverlayStyles(); infoOverlay.classList.add("active"); fitOverlayBody(); setTimeout(function(){ infoOverlay.classList.remove("active"); },10000); }
   function startOverlayLoop(){ if(!infoOverlay) return; var now=new Date(); var ms=(60-now.getSeconds())*1000-now.getMilliseconds(); if(ms<100) ms=100; setTimeout(function(){ showOverlay(); setInterval(showOverlay,60000); },ms+2000); }
 
 
