@@ -1070,6 +1070,10 @@
     html.xmas #overlayBox .gift-art[data-art="#ffa1d3"] rect[x="259"][y="253"],
     html.xmas #overlayBox .gift-art[data-art="#f47855"] rect[x="259"][y="253"],
     html.xmas #overlayBox .gift-art[data-art="#cfd829"] rect[x="259"][y="253"] { display: none !important; }
+    /* no-skill popup: remove the logo and the dark plate; keep the session name inside the cream box */
+    html.xmas #overlayBox[data-bg="#0c0c0c"] .overlayLogo { display: none !important; }
+    html.xmas #overlayBox .gift-art[data-art="#0c0c0c"] rect[x="289"][y="159"] { display: none !important; }
+    html.xmas #overlayBox[data-bg="#0c0c0c"] #overlayBody { font-size: 2.1vw !important; line-height: 1.1 !important; }
 </style>
 <script>
 // Christmas theme switch: on until 1 Jan 2027 00:00 ET, then the normal look returns automatically.
