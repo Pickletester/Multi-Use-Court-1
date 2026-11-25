@@ -1021,17 +1021,26 @@
     html.xmas .bar:not(.skill):not(.expiring)::after,
     html.xmas .bar:not(.skill) .sec::before,
     html.xmas .bar:not(.skill) .sec::after { content: none !important; display: none !important; }
-    html.xmas #overlayBox[data-bg="#0c0c0c"] { background: url(popup-normal.svg) center / 100% 100% no-repeat !important; }
+    html.xmas #overlayBox[data-bg="#0c0c0c"] { background: url(popup-frame.webp) center / 100% 100% no-repeat !important; }
     html.xmas #overlayBox[data-bg="#0c0c0c"] #overlayLevel { display: none !important; }
     /* no-skill cream box: name on one line, time under it, both inside the cream box below the RESERVED FOR label */
     html.xmas #overlayBox[data-bg="#0c0c0c"] #overlayBody {
       position: absolute !important;
-      left: 30.65%; top: 71.6%; width: 38.7%; height: 9.4%; margin: 0 !important;
+      left: 18%; top: 50.5%; width: 64%; height: 32%; margin: 0 !important;
       background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 6px !important;
       box-sizing: border-box; overflow: hidden;
-      font-size: 1.9vw; font-weight: 800; line-height: 1.05; color: #2a0a10 !important; text-align: center;
+      font-size: 2.6vw; font-weight: 800; line-height: 1.05; color: #2a0a10 !important; text-align: center;
       display: flex !important; flex-direction: column; align-items: center; justify-content: center;
       white-space: normal;
+    }
+    /* snow falling over the no-skill frame (text stays on top) */
+    html.xmas #overlayBox[data-bg="#0c0c0c"]::after {
+      content: "" !important; display: block !important; position: absolute; inset: 0;
+      background: url(snow-bg.svg) center / 100% 100% no-repeat; pointer-events: none; z-index: 0;
+    }
+    html.xmas #overlayBox[data-bg="#0c0c0c"] #overlayBody::before {
+      content: "RESERVED FOR"; display: block; font-family: Georgia, serif; font-size: .62em; font-weight: 700;
+      letter-spacing: .14em; color: #1f5f8f !important; margin-bottom: .2em;
     }
     html.xmas #overlayBox[data-bg="#0c0c0c"] #overlayBody .meta {
       font-size: .72em !important; font-weight: 700 !important; line-height: 1.1 !important; white-space: nowrap;
@@ -1056,12 +1065,11 @@
     html.xmas #overlayBox[data-bg="#ffa1d3"] .gift-art[data-art="#ffa1d3"],
     html.xmas #overlayBox[data-bg="#f47855"] .gift-art[data-art="#f47855"],
     html.xmas #overlayBox[data-bg="#cfd829"] .gift-art[data-art="#cfd829"],
-    html.xmas #overlayBox[data-bg="#0c0c0c"] .gift-art[data-art="#0c0c0c"] { display: block; }
     html.xmas #overlayBox > .overlayLogo, html.xmas #overlayBox > #overlayLevel, html.xmas #overlayBox > #overlayBody { z-index: 1; }
 
 
     /* no-skill gift popup about 25% bigger */
-    html.xmas #overlayBox[data-bg="#0c0c0c"] { width: 75vw !important; height: 34.1vw !important; }
+    html.xmas #overlayBox[data-bg="#0c0c0c"] { width: 75vw !important; height: 42.19vw !important; }
     /* bar text: same sizes and fonts as the Multi-Use-Court-1 page */
     html.xmas .bar .label { font-family: 'Barlow Condensed', sans-serif !important; font-weight: 700 !important; font-size: 12px !important; letter-spacing: .16em !important; }
     html.xmas .bar #cur .val, html.xmas .bar #nxt .val { font-family: 'Barlow', sans-serif !important; font-size: 18px !important; font-weight: 700 !important; line-height: 1.1 !important; }
