@@ -1023,12 +1023,19 @@
     html.xmas .bar:not(.skill) .sec::after { content: none !important; display: none !important; }
     html.xmas #overlayBox[data-bg="#0c0c0c"] { background: url(popup-normal.svg) center / 100% 100% no-repeat !important; }
     html.xmas #overlayBox[data-bg="#0c0c0c"] #overlayLevel { display: none !important; }
+    /* no-skill cream box: name on one line, time under it, both inside the cream box below the RESERVED FOR label */
     html.xmas #overlayBox[data-bg="#0c0c0c"] #overlayBody {
-      display: block !important; position: absolute !important;
-      left: 30.65%; top: 73%; width: 38.7%; height: 8%; margin: 0 !important;
-      background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important;
-      font-size: 3vw; font-weight: 800; line-height: 1; color: #2a0a10 !important; text-align: center;
-      display: flex !important; align-items: center; justify-content: center;
+      position: absolute !important;
+      left: 30.65%; top: 71.6%; width: 38.7%; height: 9.4%; margin: 0 !important;
+      background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 6px !important;
+      box-sizing: border-box; overflow: hidden;
+      font-size: 1.9vw; font-weight: 800; line-height: 1.05; color: #2a0a10 !important; text-align: center;
+      display: flex !important; flex-direction: column; align-items: center; justify-content: center;
+      white-space: normal;
+    }
+    html.xmas #overlayBox[data-bg="#0c0c0c"] #overlayBody .meta {
+      font-size: .72em !important; font-weight: 700 !important; line-height: 1.1 !important; white-space: nowrap;
+      margin: 0 !important; letter-spacing: .02em;
     }
 
     /* overlay backdrop: black at 50% with snow behind the gift popup */
@@ -1073,7 +1080,6 @@
     /* no-skill popup: remove the logo and the dark plate; keep the session name inside the cream box */
     html.xmas #overlayBox[data-bg="#0c0c0c"] .overlayLogo { display: none !important; }
     html.xmas #overlayBox .gift-art[data-art="#0c0c0c"] rect[x="289"][y="159"] { display: none !important; }
-    html.xmas #overlayBox[data-bg="#0c0c0c"] #overlayBody { font-size: 2.1vw !important; line-height: 1.1 !important; }
     /* rating text: no black pill; readable with a soft shadow */
     html.xmas #overlayBox #overlayLevel { background: transparent !important; box-shadow: none !important; text-shadow: 0 0 6px rgba(0,0,0,.85), 0 2px 4px rgba(0,0,0,.7) !important; }
     /* skill popups: only the level, in black, inside the off-white box */
