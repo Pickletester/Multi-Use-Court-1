@@ -4,7 +4,7 @@
    - Fonts / fixed-version libraries: saved copy first.
    - Everything else (schedule API, birthdays, Eagle Eye, Firebase data): untouched. */
 var CACHE = "levelup-court-v1";
-var PRECACHE = ["./", "index.html", "levelup-logo.png", "bar-45plus.svg", "bar-40-449.svg", "bar-35-399.svg", "bar-30-349.svg", "bar-20-299.svg", "bar-normal.svg", "popup-normal.svg", "gift-20-299.svg", "gift-30-349.svg", "gift-35-399.svg", "gift-40-449.svg", "gift-45plus.svg", "snow-bg.svg", "xmas-court-panel.png", "xmas-garland.png", "xmas-drift.png", "xmas-flakes.png"];
+var PRECACHE = ["./", "index.html", "levelup-logo.png", "xmas-court-panel.png", "xmas-garland.png", "popup-frame.webp", "snow-bg.svg"];
 var TIMEOUT_MS = 4000;
 
 self.addEventListener("install", function(e){
