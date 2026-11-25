@@ -1646,7 +1646,7 @@
   function applyOverlayStyles(){
     if(!overlayBoxEl||!overlayLvlEl) return;
     if(currentLevelLabel){
-      overlayLvlEl.style.display="inline-block";
+      overlayLvlEl.style.display="inline-block"; var __lgS=document.querySelector("#overlayBox .overlayLogo"); if(__lgS) __lgS.style.display="";
       overlayLvlEl.textContent=currentLevelLabel;
       overlayBoxEl.style.background = currentLevelBg || "#0c0c0c";
       overlayBoxEl.setAttribute("data-bg", (currentLevelBg || "#0c0c0c").toLowerCase());
@@ -1658,7 +1658,7 @@
       overlayBodyEl.style.color = textColor;
       overlayBoxEl.style.border = useDark ? "1px solid rgba(0,0,0,0.2)" : "1px solid rgba(255,255,255,0.2)";
     } else {
-      overlayLvlEl.style.display="none";
+      overlayLvlEl.style.display="none"; var __lgH=document.querySelector("#overlayBox .overlayLogo"); if(__lgH) __lgH.style.display="none";
       overlayLvlEl.textContent="";
       overlayLvlEl.style.color="";
       overlayBoxEl.style.background = "";
