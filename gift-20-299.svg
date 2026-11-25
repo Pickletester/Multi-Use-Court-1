@@ -10,6 +10,6 @@
  <ns0:rect x="404" y="91" width="37" height="54" fill="url(#ribbon)" />
  <ns0:g fill="url(#ribbon)" stroke="#c2a768" stroke-width="1.4"><ns0:path d="M419 88C389 94 338 87 336 64C334 39 381 39 419 69Z" /><ns0:path d="M426 88C456 94 507 87 509 64C511 39 464 39 426 69Z" /><ns0:path d="M414 78L389 112L413 106L423 87L433 109L455 115L433 78Z" /><ns0:ellipse cx="422.5" cy="77" rx="14" ry="13" /></ns0:g>
  <ns0:path d="M348 63Q374 51 407 75M497 63Q471 51 438 75" fill="none" stroke="#fff" stroke-width="3" opacity=".8" />
- <ns0:rect x="289" y="159" width="267" height="82" rx="12" fill="#17120e" stroke="#d7b868" stroke-width="2" />
- <ns0:rect x="259" y="253" width="327" height="60" rx="18" fill="#24150f" stroke="#e7ce8d" stroke-width="2" />
+ 
+ 
  </ns0:g></ns0:svg>
